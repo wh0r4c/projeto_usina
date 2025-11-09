@@ -1,28 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- VARIÁVEIS E CONSTANTES ---
-    // ATENÇÃO: Altere esta porta se o seu backend rodar em outra!
-    // Você verá a porta correta no terminal ao rodar "dotnet run".
-    const API_BASE_URL = 'http://localhost:5104'; // Pode ser 5123, 5001, 7001, etc.
-
+    const API_BASE_URL = 'http://localhost:5104'; // Mantenha a sua porta!
     let currentToken = null;
     let textoParaFalar = '';
 
-    // --- SELETORES DE ELEMENTOS ---
+    // --- SELETORES DE ELEMENTOS (Telas) ---
     const telaLogin = document.getElementById('tela-login');
     const telaPrincipal = document.getElementById('tela-principal');
     const loginForm = document.getElementById('login-form');
     const inputCpf = document.getElementById('cpf');
     const inputPin = document.getElementById('pin');
     const loginError = document.getElementById('login-error');
-
     const saudacao = document.getElementById('saudacao');
     const btnSair = document.getElementById('btn-sair');
+    
+    // --- INICIALIZAÇÃO DOS MODAIS BOOTSTRAP ---
+    // Pegamos o elemento HTML E criamos um "controlador" do Bootstrap para ele
+    
+    // Holerite
+    const modalHoleriteEl = document.getElementById('tela-holerite-detalhe');
+    const bsModalHolerite = new bootstrap.Modal(modalHoleriteEl);
+    const btnHolerite = document.getElementById('btn-holerite');
+    const btnFecharHolerite = document.getElementById('btn-fechar-holerite');
+    const valorHolerite = document.getElementById('holerite-valor-liquido');
+    const btnOuvirHolerite = document.getElementById('btn-ouvir-holerite');
+    const btnBaixarPdf = document.getElementById('btn-baixar-pdf');
+    const holeriteError = document.getElementById('holerite-error');
 
-    // ... (seletores do holerite) ...
-
-    // Seletores do Modal RH
-    const modalRh = document.getElementById('tela-rh-gravar');
+    // Falar com RH
+    const modalRhEl = document.getElementById('tela-rh-gravar');
+    const bsModalRh = new bootstrap.Modal(modalRhEl);
     const btnFalarRh = document.getElementById('btn-falar-rh');
     const btnFecharRh = document.getElementById('btn-fechar-rh');
     const btnGravarAudio = document.getElementById('btn-gravar-audio');
@@ -30,48 +38,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEnviarAudio = document.getElementById('btn-enviar-audio');
     const audioPreview = document.getElementById('audio-preview');
     const rhStatus = document.getElementById('rh-status');
+    let mediaRecorder, audioChunks = [], audioBlob = null;
 
-    // Seletores do Modal Avisos
-    const modalAvisos = document.getElementById('tela-avisos');
+    // Avisos
+    const modalAvisosEl = document.getElementById('tela-avisos');
+    const bsModalAvisos = new bootstrap.Modal(modalAvisosEl);
     const btnAvisos = document.getElementById('btn-avisos');
     const btnFecharAvisos = document.getElementById('btn-fechar-avisos');
     const listaAvisosContainer = document.getElementById('lista-avisos-container');
     const avisosStatus = document.getElementById('avisos-status');
 
-    // Seletores do Modal FAQ
-    const modalFaq = document.getElementById('tela-faq');
+    // FAQ
+    const modalFaqEl = document.getElementById('tela-faq');
+    const bsModalFaq = new bootstrap.Modal(modalFaqEl);
     const btnFaq = document.getElementById('btn-faq');
     const btnFecharFaq = document.getElementById('btn-fechar-faq');
     const listaFaqContainer = document.getElementById('lista-faq-container');
     const faqStatus = document.getElementById('faq-status');
 
-    // Variáveis para o gravador
-    let mediaRecorder; // O objeto gravador
-    let audioChunks = []; // Um "balde" para os pedaços de áudio
-    let audioBlob = null; // O arquivo de áudio final
-
-    // Botões do Menu
-    const btnHolerite = document.getElementById('btn-holerite');
-
-    // Modal Holerite
-    const modalHolerite = document.getElementById('tela-holerite-detalhe');
-    const btnFecharHolerite = document.getElementById('btn-fechar-holerite');
-    const valorHolerite = document.getElementById('holerite-valor-liquido');
-    const btnOuvirHolerite = document.getElementById('btn-ouvir-holerite');
-    const btnBaixarPdf = document.getElementById('btn-baixar-pdf');
-    const holeriteError = document.getElementById('holerite-error');
-
-    // Seletores do Modal Banco de Horas
-    const modalBancoHoras = document.getElementById('tela-banco-horas');
+    // Banco de Horas
+    const modalBancoHorasEl = document.getElementById('tela-banco-horas');
+    const bsModalBancoHoras = new bootstrap.Modal(modalBancoHorasEl);
     const btnBancoHoras = document.getElementById('btn-banco-horas');
     const btnFecharBancoHoras = document.getElementById('btn-fechar-banco-horas');
     const bancoHorasValor = document.getElementById('banco-horas-valor');
     const bancoHorasData = document.getElementById('banco-horas-data');
     const btnOuvirBancoHoras = document.getElementById('btn-ouvir-banco-horas');
     const bancoHorasStatus = document.getElementById('banco-horas-status');
-
-    // Seletores do Modal Férias
-    const modalFerias = document.getElementById('tela-ferias');
+    
+    // Férias
+    const modalFeriasEl = document.getElementById('tela-ferias');
+    const bsModalFerias = new bootstrap.Modal(modalFeriasEl);
     const btnFerias = document.getElementById('btn-ferias');
     const btnFecharFerias = document.getElementById('btn-fechar-ferias');
     const feriasStatus = document.getElementById('ferias-status');
@@ -82,18 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNÇÕES DE LÓGICA ---
 
-    // Mostra/esconde telas
     function mostrarTela(tela) {
         telaLogin.style.display = 'none';
         telaPrincipal.style.display = 'none';
         tela.style.display = 'block';
     }
 
-    // Tenta fazer login
     async function fazerLogin(e) {
         e.preventDefault();
         loginError.textContent = '';
-
+        
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
@@ -103,24 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     pin: inputPin.value
                 })
             });
-
-            if (!resposta.ok) {
-                throw new Error('CPF ou PIN inválidos.');
-            }
-
+            if (!resposta.ok) throw new Error('CPF ou PIN inválidos.');
             const dados = await resposta.json();
             currentToken = dados.token;
-            sessionStorage.setItem('token', dados.token); // Salva o token na sessão
-
+            sessionStorage.setItem('token', dados.token);
             saudacao.textContent = `Olá, ${dados.nome}!`;
             mostrarTela(telaPrincipal);
-
         } catch (err) {
             loginError.textContent = err.message;
         }
     }
 
-    // Faz logout
     function fazerLogout() {
         currentToken = null;
         sessionStorage.removeItem('token');
@@ -129,94 +117,70 @@ document.addEventListener('DOMContentLoaded', () => {
         mostrarTela(telaLogin);
     }
 
-    // Tenta carregar o holerite
-    async function carregarHolerite() {
+    // --- MÓDULO HOLERITE ---
+    async function carregarHolerite(e) {
+        e.preventDefault(); // Previne o link de navegar
         holeriteError.textContent = '';
         btnBaixarPdf.style.display = 'none';
-
+        
         if (!currentToken) {
-            holeriteError.textContent = 'Erro de autenticação. Tente logar novamente.';
+            holeriteError.textContent = 'Erro de autenticação.';
             return;
         }
+        
+        bsModalHolerite.show(); // MUDANÇA: Mostra o modal Bootstrap
 
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/holerite`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${currentToken}`
-                }
+                headers: { 'Authorization': `Bearer ${currentToken}` }
             });
-
-            if (!resposta.ok) {
-                throw new Error('Não foi possível carregar o holerite.');
-            }
-
+            if (!resposta.ok) throw new Error('Não foi possível carregar.');
+            
             const dados = await resposta.json();
-
-            // Formata o valor como moeda (R$)
-            const valorFormatado = dados.valor_liquido.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            });
-
+            const valorFormatado = dados.valor_liquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
             valorHolerite.textContent = valorFormatado;
             textoParaFalar = dados.texto_para_fala;
-
             if (dados.tem_pdf) {
                 btnBaixarPdf.style.display = 'block';
             }
-
-            modalHolerite.style.display = 'flex'; // Mostra o modal
-
         } catch (err) {
             holeriteError.textContent = err.message;
         }
     }
 
-    // Baixa o PDF
     async function baixarPdf() {
+        // ... (código do baixarPdf não muda)
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/holerite/pdf`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${currentToken}`
-                }
+                headers: { 'Authorization': `Bearer ${currentToken}` }
             });
-
-            if (!resposta.ok) {
-                throw new Error('Não foi possível baixar o PDF.');
-            }
-
-            // Converte a resposta em um "blob" (um arquivo)
+            if (!resposta.ok) throw new Error('Não foi possível baixar o PDF.');
+            
             const blob = await resposta.blob();
-            // Pega o nome do arquivo do cabeçalho (se o backend enviar)
             const contentDisposition = resposta.headers.get('content-disposition');
-            let filename = 'holerite.pdf'; // Nome padrão
+            let filename = 'holerite.pdf';
             if (contentDisposition) {
                 const match = contentDisposition.match(/filename="?([^"]+)"?/);
                 if (match) filename = match[1];
             }
-
-            // Cria um link temporário na memória para fazer o download
+            
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename; // O nome do arquivo
+            a.style.display = 'none'; a.href = url; a.download = filename;
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
-
+            window.URL.revokeObjectURL(url); a.remove();
         } catch (err) {
             holeriteError.textContent = err.message;
         }
     }
 
-    // --- FUNÇÕES DO MÓDULO RH ---
-
-    function abrirModalRh() {
-        // Reseta o modal para o estado inicial
+    // --- MÓDULO RH ---
+    function abrirModalRh(e) {
+        e.preventDefault();
         rhStatus.textContent = '';
         audioPreview.style.display = 'none';
         audioPreview.src = '';
@@ -226,48 +190,31 @@ document.addEventListener('DOMContentLoaded', () => {
         btnGravarAudio.disabled = false;
         audioChunks = [];
         audioBlob = null;
-
-        modalRh.style.display = 'flex';
+        bsModalRh.show(); // MUDANÇA
     }
 
     async function iniciarGravacao() {
-        rhStatus.textContent = 'Pedindo permissão para o microfone...';
-
+        // ... (código do iniciarGravacao não muda)
+        rhStatus.textContent = 'Pedindo permissão...';
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-            // 1. Inicia o gravador
             mediaRecorder = new MediaRecorder(stream);
-
-            // 2. Define o que fazer quando o gravador tiver dados
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
-
-            // 3. Define o que fazer quando a gravação PARAR
+            mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+            
             mediaRecorder.onstop = () => {
-                // Cria o arquivo de áudio final
-                audioBlob = new Blob(audioChunks, { type: 'audio/wav' }); // Pode ser .wav ou .webm
+                audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-
-                // Mostra o "player" para o usuário ouvir
                 audioPreview.src = audioUrl;
                 audioPreview.style.display = 'block';
-
-                // Habilita o botão de enviar
                 btnEnviarAudio.style.display = 'block';
                 btnEnviarAudio.disabled = false;
             };
-
-            // 4. Muda os botões
-            audioChunks = []; // Limpa o balde
+            
+            audioChunks = [];
             btnGravarAudio.style.display = 'none';
             btnPararAudio.style.display = 'block';
             rhStatus.textContent = 'Gravando... 🔴';
-
-            // 5. Começa a gravar!
             mediaRecorder.start();
-
         } catch (err) {
             console.error('Erro ao acessar microfone:', err);
             rhStatus.textContent = 'Erro: Não foi possível acessar o microfone.';
@@ -275,13 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function pararGravacao() {
+        // ... (código do pararGravacao não muda)
         if (mediaRecorder) {
             mediaRecorder.stop();
-
-            // Para todas as faixas de áudio (desliga o ícone de microfone no navegador)
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
-
-            // Muda os botões
             btnPararAudio.style.display = 'none';
             btnGravarAudio.style.display = 'block';
             rhStatus.textContent = 'Gravação parada. Ouça e envie.';
@@ -289,125 +233,201 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function enviarGravacao() {
+        // ... (código do enviarGravacao não muda)
         if (!audioBlob || !currentToken) {
-            rhStatus.textContent = 'Nenhum áudio para enviar ou erro de login.';
+            rhStatus.textContent = 'Nenhum áudio ou erro de login.';
             return;
         }
-
-        rhStatus.textContent = 'Enviando, por favor aguarde...';
+        rhStatus.textContent = 'Enviando...';
         btnEnviarAudio.disabled = true;
-
-        // FormData é a forma de enviar ARQUIVOS para uma API
         const formData = new FormData();
-        // 'audioFile' DEVE ser o mesmo nome do parâmetro no C# (IFormFile audioFile)
-        // 'gravacao.wav' é o nome do arquivo que o servidor verá.
-        formData.append('audioFile', audioBlob, 'gravacao.wav');
+        formData.append('audioFile', audioBlob, 'gravacao.wav'); 
 
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/suporte/audio`, {
                 method: 'POST',
-                headers: {
-                    // NÃO defina 'Content-Type'. O navegador faz isso
-                    // automaticamente (multipart/form-data) com o FormData.
-                    'Authorization': `Bearer ${currentToken}`
-                },
+                headers: { 'Authorization': `Bearer ${currentToken}` },
                 body: formData
             });
-
             const dados = await resposta.json();
-
-            if (!resposta.ok) {
-                throw new Error(dados.message || 'Erro ao enviar áudio.');
-            }
-
+            if (!resposta.ok) throw new Error(dados.message || 'Erro ao enviar.');
             rhStatus.textContent = `Enviado! Protocolo: ${dados.ticketId}`;
-            btnEnviarAudio.disabled = true; // Desabilita após o envio
-
+            btnEnviarAudio.disabled = true;
         } catch (err) {
             rhStatus.textContent = `Erro: ${err.message}`;
-            btnEnviarAudio.disabled = false; // Permite tentar de novo
+            btnEnviarAudio.disabled = false;
         }
     }
 
-    async function carregarAvisos() {
+    // --- MÓDULO AVISOS ---
+    async function carregarAvisos(e) {
+        e.preventDefault();
         avisosStatus.textContent = 'Carregando avisos...';
-        listaAvisosContainer.innerHTML = ''; // Limpa a lista antiga
-
+        listaAvisosContainer.innerHTML = '';
         if (!currentToken) {
             avisosStatus.textContent = 'Erro de autenticação.';
             return;
         }
-
-        modalAvisos.style.display = 'flex'; // Mostra o modal
+        bsModalAvisos.show(); // MUDANÇA
 
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/avisos`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${currentToken}` }
             });
-
-            if (!resposta.ok) {
-                throw new Error('Não foi possível carregar os avisos.');
-            }
-
+            if (!resposta.ok) throw new Error('Não foi possível carregar os avisos.');
+            
             const avisos = await resposta.json();
-
             if (avisos.length === 0) {
                 avisosStatus.textContent = 'Nenhum aviso no momento.';
                 return;
             }
-
-            avisosStatus.textContent = ''; // Limpa o status
-
-            // Cria os cards para cada aviso
+            avisosStatus.textContent = '';
+            
             avisos.forEach(aviso => {
+                // Re-cria os cards com classes do Bootstrap
                 const card = document.createElement('div');
-                card.className = 'aviso-card';
-
-                // Usamos .innerText para prevenir XSS (segurança!)
-                const titulo = document.createElement('h4');
-                titulo.innerText = aviso.titulo;
-
-                const conteudo = document.createElement('p');
-                conteudo.innerText = aviso.conteudo;
-
-                const footer = document.createElement('div');
-                footer.className = 'aviso-card-footer';
-
-                const data = document.createElement('span');
-                data.className = 'data-aviso';
-                data.innerText = `Publicado em: ${aviso.data}`;
-
-                const btnOuvir = document.createElement('button');
-                btnOuvir.className = 'btn-ouvir-aviso';
-                btnOuvir.innerText = '▶️ Ouvir';
-
-                // Usa uma função anônima para passar o texto para a função 'falarAviso'
-                btnOuvir.onclick = () => {
-                    // Passa o texto otimizado para fala
-                    falarTexto(aviso.textoParaFala);
+                card.className = 'card mb-3';
+                card.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">${aviso.titulo}</h5>
+                        <p class="card-text">${aviso.conteudo}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Publicado em: ${aviso.data}</small>
+                            <button class="btn btn-sm btn-outline-primary btn-ouvir-aviso">▶️ Ouvir</button>
+                        </div>
+                    </div>
+                `;
+                // Adiciona o listener no botão recém-criado
+                card.querySelector('.btn-ouvir-aviso').onclick = () => {
+                    falarTexto(aviso.textoParaFala); 
                 };
-
-                footer.appendChild(data);
-                footer.appendChild(btnOuvir);
-
-                card.appendChild(titulo);
-                card.appendChild(conteudo);
-                card.appendChild(footer);
-
                 listaAvisosContainer.appendChild(card);
             });
-
         } catch (err) {
             avisosStatus.textContent = `Erro: ${err.message}`;
         }
     }
 
-    // Reutiliza a lógica de falar, mas de forma mais genérica
-    function falarTexto(texto) {
-        // Para qualquer fala anterior antes de começar uma nova
-        window.speechSynthesis.cancel();
+    // --- MÓDULO FAQ ---
+    async function carregarFaq(e) {
+        e.preventDefault();
+        faqStatus.textContent = 'Carregando dúvidas...';
+        listaFaqContainer.innerHTML = '';
+        bsModalFaq.show(); // MUDANÇA
 
+        try {
+            const resposta = await fetch(`${API_BASE_URL}/api/faq`, { method: 'GET' });
+            if (!resposta.ok) throw new Error('Não foi possível carregar as dúvidas.');
+            
+            const faqs = await resposta.json();
+            if (faqs.length === 0) {
+                faqStatus.textContent = 'Nenhuma dúvida cadastrada.';
+                return;
+            }
+            faqStatus.textContent = '';
+            
+            faqs.forEach(faq => {
+                // Re-cria os cards com classes do Bootstrap
+                const card = document.createElement('div');
+                card.className = 'card faq-card mb-2'; // Usamos a classe customizada
+                
+                card.innerHTML = `
+                    <div class="faq-pergunta">
+                        <h4 class="mb-0">${faq.pergunta}</h4>
+                        <span class="fs-5">▼</span>
+                    </div>
+                    <div class="faq-resposta">
+                        <p>${faq.resposta}</p>
+                        <button class="btn btn-sm btn-outline-primary btn-ouvir-faq">▶️ Ouvir Resposta</button>
+                    </div>
+                `;
+                
+                card.querySelector('.btn-ouvir-faq').onclick = () => {
+                    falarTexto(faq.textoParaFala); 
+                };
+
+                card.querySelector('.faq-pergunta').addEventListener('click', () => {
+                    document.querySelectorAll('.faq-card.active').forEach(item => {
+                        if (item !== card) {
+                            item.classList.remove('active');
+                            item.querySelector('.faq-pergunta span').innerText = '▼';
+                        }
+                    });
+                    card.classList.toggle('active');
+                    if (card.classList.contains('active')) {
+                        card.querySelector('.faq-pergunta span').innerText = '▲';
+                    } else {
+                        card.querySelector('.faq-pergunta span').innerText = '▼';
+                        window.speechSynthesis.cancel();
+                    }
+                });
+                listaFaqContainer.appendChild(card);
+            });
+        } catch (err) {
+            faqStatus.textContent = `Erro: ${err.message}`;
+        }
+    }
+    
+    // --- MÓDULO BANCO DE HORAS ---
+    async function carregarBancoHoras(e) {
+        e.preventDefault();
+        bancoHorasStatus.textContent = 'Carregando saldo...';
+        if (!currentToken) {
+            bancoHorasStatus.textContent = 'Erro de autenticação.';
+            return;
+        }
+        bsModalBancoHoras.show(); // MUDANÇA
+
+        try {
+            const resposta = await fetch(`${API_BASE_URL}/api/bancohoras`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            if (!resposta.ok) throw new Error('Não foi possível carregar o saldo.');
+
+            const dados = await resposta.json();
+            bancoHorasStatus.textContent = '';
+            bancoHorasValor.textContent = dados.horasFormatadas;
+            bancoHorasData.textContent = `Atualizado em: ${dados.dataAtualizacao}`;
+            btnOuvirBancoHoras.onclick = () => falarTexto(dados.textoParaFala);
+        } catch (err) {
+            bancoHorasStatus.textContent = `Erro: ${err.message}`;
+        }
+    }
+    
+    // --- MÓDULO FÉRIAS ---
+    async function carregarFerias(e) {
+        e.preventDefault();
+        feriasMsgStatus.textContent = 'Carregando dados...';
+        if (!currentToken) {
+            feriasMsgStatus.textContent = 'Erro de autenticação.';
+            return;
+        }
+        bsModalFerias.show(); // MUDANÇA
+
+        try {
+            const resposta = await fetch(`${API_BASE_URL}/api/ferias`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            if (!resposta.ok) throw new Error('Não foi possível carregar os dados.');
+
+            const dados = await resposta.json();
+            feriasMsgStatus.textContent = '';
+            feriasStatus.textContent = dados.status;
+            feriasData.textContent = dados.dataProgramada;
+            feriasSaldoDias.textContent = `Saldo: ${dados.diasDeSaldo}`;
+            btnOuvirFerias.onclick = () => falarTexto(dados.textoParaFala);
+        } catch (err)
+ {
+            feriasMsgStatus.textContent = `Erro: ${err.message}`;
+        }
+    }
+
+    // --- FUNÇÃO DE FALA (Genérica) ---
+    function falarTexto(texto) {
+        window.speechSynthesis.cancel(); 
         if ('speechSynthesis' in window && texto) {
             const synth = window.speechSynthesis;
             const utterance = new SpeechSynthesisUtterance(texto);
@@ -418,250 +438,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function carregarFaq() {
-        faqStatus.textContent = 'Carregando dúvidas...';
-        listaFaqContainer.innerHTML = ''; // Limpa a lista antiga
 
-        // NOTA: Não precisamos do token aqui!
-        // A API é pública.
-
-        modalFaq.style.display = 'flex'; // Mostra o modal
-
-        try {
-            const resposta = await fetch(`${API_BASE_URL}/api/faq`, {
-                method: 'GET'
-                // Sem cabeçalho de Authorization
-            });
-
-            if (!resposta.ok) {
-                throw new Error('Não foi possível carregar as dúvidas.');
-            }
-
-            const faqs = await resposta.json();
-
-            if (faqs.length === 0) {
-                faqStatus.textContent = 'Nenhuma dúvida cadastrada.';
-                return;
-            }
-
-            faqStatus.textContent = ''; // Limpa o status
-
-            // Cria os cards para cada FAQ
-            faqs.forEach(faq => {
-                const card = document.createElement('div');
-                card.className = 'faq-card';
-
-                // --- Pergunta (O "botão" do acordeão) ---
-                const perguntaDiv = document.createElement('div');
-                perguntaDiv.className = 'faq-pergunta';
-
-                const titulo = document.createElement('h4');
-                titulo.innerText = faq.pergunta;
-
-                const iconeSeta = document.createElement('span');
-                iconeSeta.innerText = '▼'; // Seta para baixo
-
-                perguntaDiv.appendChild(titulo);
-                perguntaDiv.appendChild(iconeSeta);
-
-                // --- Resposta (Conteúdo escondido) ---
-                const respostaDiv = document.createElement('div');
-                respostaDiv.className = 'faq-resposta';
-
-                const conteudo = document.createElement('p');
-                conteudo.innerText = faq.resposta;
-
-                const btnOuvir = document.createElement('button');
-                btnOuvir.className = 'btn-ouvir-faq';
-                btnOuvir.innerText = '▶️ Ouvir Resposta';
-                btnOuvir.onclick = () => {
-                    falarTexto(faq.textoParaFala);
-                };
-
-                respostaDiv.appendChild(conteudo);
-                respostaDiv.appendChild(btnOuvir);
-
-                // --- Montagem e Lógica do Acordeão ---
-                card.appendChild(perguntaDiv);
-                card.appendChild(respostaDiv);
-
-                perguntaDiv.addEventListener('click', () => {
-                    // Fecha todos os outros cards
-                    document.querySelectorAll('.faq-card.active').forEach(item => {
-                        if (item !== card) {
-                            item.classList.remove('active');
-                            item.querySelector('.faq-pergunta span').innerText = '▼';
-                        }
-                    });
-
-                    // Abre ou fecha o card clicado
-                    card.classList.toggle('active');
-                    if (card.classList.contains('active')) {
-                        iconeSeta.innerText = '▲'; // Seta para cima
-                    } else {
-                        iconeSeta.innerText = '▼'; // Seta para baixo
-                        window.speechSynthesis.cancel(); // Para a fala se fechar
-                    }
-                });
-
-                listaFaqContainer.appendChild(card);
-            });
-
-        } catch (err) {
-            faqStatus.textContent = `Erro: ${err.message}`;
-        }
-    }
-
-    // --- FUNÇÕES DO MÓDULO BANCO DE HORAS ---
-    async function carregarBancoHoras() {
-        bancoHorasStatus.textContent = 'Carregando saldo...';
-
-        if (!currentToken) {
-            bancoHorasStatus.textContent = 'Erro de autenticação.';
-            return;
-        }
-
-        modalBancoHoras.style.display = 'flex'; // Mostra o modal
-
-        try {
-            const resposta = await fetch(`${API_BASE_URL}/api/bancohoras`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${currentToken}` }
-            });
-
-            if (!resposta.ok) {
-                throw new Error('Não foi possível carregar o saldo.');
-            }
-
-            const dados = await resposta.json();
-
-            bancoHorasStatus.textContent = ''; // Limpa o status
-
-            bancoHorasValor.textContent = dados.horasFormatadas;
-            bancoHorasData.textContent = `Atualizado em: ${dados.dataAtualizacao}`;
-
-            // Configura o botão de ouvir
-            btnOuvirBancoHoras.onclick = () => {
-                falarTexto(dados.textoParaFala);
-            };
-
-        } catch (err) {
-            bancoHorasStatus.textContent = `Erro: ${err.message}`;
-        }
-    }
-
-    // --- FUNÇÕES DO MÓDULO FÉRIAS ---
-
-    async function carregarFerias() {
-        feriasMsgStatus.textContent = 'Carregando dados...';
-
-        if (!currentToken) {
-            feriasMsgStatus.textContent = 'Erro de autenticação.';
-            return;
-        }
-
-        modalFerias.style.display = 'flex'; // Mostra o modal
-
-        try {
-            const resposta = await fetch(`${API_BASE_URL}/api/ferias`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${currentToken}` }
-            });
-
-            if (!resposta.ok) {
-                throw new Error('Não foi possível carregar os dados de férias.');
-            }
-
-            const dados = await resposta.json();
-
-            feriasMsgStatus.textContent = ''; // Limpa o status
-
-            feriasStatus.textContent = dados.status;
-            feriasData.textContent = dados.dataProgramada;
-            feriasSaldoDias.textContent = `Saldo: ${dados.diasDeSaldo}`;
-
-            // Configura o botão de ouvir
-            btnOuvirFerias.onclick = () => {
-                falarTexto(dados.textoParaFala);
-            };
-
-        } catch (err) {
-            feriasMsgStatus.textContent = `Erro: ${err.message}`;
-        }
-    }
-
-    // Função de Falar (Text-to-Speech)
-    function falar() {
-        if ('speechSynthesis' in window && textoParaFalar) {
-            const synth = window.speechSynthesis;
-            const utterance = new SpeechSynthesisUtterance(textoParaFalar);
-            utterance.lang = 'pt-BR';
-            synth.speak(utterance);
-        } else {
-            alert('Seu navegador não suporta a função de voz.');
-        }
-    }
-
-
-    // --- REGISTRO DE EVENTOS ---
+    // --- REGISTRO DE EVENTOS (Listeners) ---
     loginForm.addEventListener('submit', fazerLogin);
     btnSair.addEventListener('click', fazerLogout);
 
     // Botões do Menu
     btnHolerite.addEventListener('click', carregarHolerite);
-
-    // Eventos do Modal Holerite
-    btnFecharHolerite.addEventListener('click', () => {
-        modalHolerite.style.display = 'none';
-    });
-    btnOuvirHolerite.addEventListener('click', falar);
-    btnBaixarPdf.addEventListener('click', baixarPdf);
-
-    // ... (eventos do modal holerite) ...
-
-    // Eventos do Modal RH
     btnFalarRh.addEventListener('click', abrirModalRh);
-    btnFecharRh.addEventListener('click', () => modalRh.style.display = 'none');
+    btnAvisos.addEventListener('click', carregarAvisos);
+    btnFaq.addEventListener('click', carregarFaq);
+    btnBancoHoras.addEventListener('click', carregarBancoHoras);
+    btnFerias.addEventListener('click', carregarFerias);
+
+    // Botões dos Modais
+    btnOuvirHolerite.addEventListener('click', () => falarTexto(textoParaFalar));
+    btnBaixarPdf.addEventListener('click', baixarPdf);
     btnGravarAudio.addEventListener('click', iniciarGravacao);
     btnPararAudio.addEventListener('click', pararGravacao);
     btnEnviarAudio.addEventListener('click', enviarGravacao);
 
-    // Eventos do Modal Avisos
-    btnAvisos.addEventListener('click', carregarAvisos);
-    btnFecharAvisos.addEventListener('click', () => {
-        modalAvisos.style.display = 'none';
-        window.speechSynthesis.cancel(); // Para qualquer fala se o modal fechar
-    });
-
-    // Eventos do Modal FAQ
-    btnFaq.addEventListener('click', carregarFaq);
-    btnFecharFaq.addEventListener('click', () => {
-        modalFaq.style.display = 'none';
-        window.speechSynthesis.cancel(); // Para qualquer fala se o modal fechar
-    });
-
-    // Eventos do Modal Banco de Horas
-    btnBancoHoras.addEventListener('click', carregarBancoHoras);
-    btnFecharBancoHoras.addEventListener('click', () => {
-        modalBancoHoras.style.display = 'none';
-        window.speechSynthesis.cancel(); // Para a fala se fechar
-    });
-
-    // Eventos do Modal Férias
-    btnFerias.addEventListener('click', carregarFerias);
-    btnFecharFerias.addEventListener('click', () => {
-        modalFerias.style.display = 'none';
-        window.speechSynthesis.cancel(); // Para a fala se fechar
+    // Eventos de Fechar (para parar a fala)
+    const allModals = [modalHoleriteEl, modalRhEl, modalAvisosEl, modalFaqEl, modalBancoHorasEl, modalFeriasEl];
+    allModals.forEach(modal => {
+        modal.addEventListener('hidden.bs.modal', () => {
+            window.speechSynthesis.cancel(); // Para a fala quando qualquer modal fechar
+        });
     });
 
     // --- INICIALIZAÇÃO ---
-    // Verifica se já existe um token na sessão ao carregar a página
     const tokenSalvo = sessionStorage.getItem('token');
     if (tokenSalvo) {
-        // Se tem token, vamos pular o login
-        // (Em um app real, você validaria esse token com a API)
         currentToken = tokenSalvo;
-        saudacao.textContent = 'Olá!'; // Não temos o nome aqui, mas tudo bem
+        saudacao.textContent = 'Olá!';
         mostrarTela(telaPrincipal);
     } else {
         mostrarTela(telaLogin);

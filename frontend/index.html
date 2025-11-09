@@ -1,173 +1,208 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistente Usina</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
     <link rel="stylesheet" href="style.css">
+    
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#317EFB" />
+    <meta name="theme-color" content="#4E004E"/>
 </head>
+<body class="d-flex align-items-center justify-content-center">
 
-<body>
-
-    <main id="tela-login" class="tela">
-        <h1>Assistente do Colaborador</h1>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="cpf">Digite seu CPF</label>
-                <input type="tel" id="cpf" placeholder="Apenas números" required>
-            </div>
-            <div class="form-group">
-                <label for="pin">Digite seu PIN</label>
-                <input type="password" id="pin" inputmode="numeric" maxlength="4" required>
-            </div>
-            <button type="submit" class="btn-grande">Entrar</button>
-            <p id="login-error" class="error-msg"></p>
-        </form>
+    <main id="tela-login" class="container login-container">
+        <div class="card p-4 shadow-sm">
+            <h1 class="h3 mb-4 text-center text-primary fw-bold">Assistente do Colaborador</h1>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="cpf" class="form-label fw-medium">CPF</label>
+                    <input type="tel" class="form-control form-control-lg" id="cpf" placeholder="Apenas números" required>
+                </div>
+                <div class="mb-3">
+                    <label for="pin" class="form-label fw-medium">PIN</label>
+                    <input type="password" class="form-control form-control-lg" id="pin" inputmode="numeric" maxlength="4" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold">Entrar</button>
+                </div>
+                <p id="login-error" class="text-danger text-center mt-3"></p>
+            </form>
+        </div>
     </main>
 
-    <main id="tela-principal" class="tela" style="display: none;">
-        <header>
-            <h2 id="saudacao">Olá!</h2>
-            <button id="btn-sair">Sair</button>
+    <main id="tela-principal" class="container main-container" style="display: none;">
+        <header class="d-flex justify-content-between align-items-center my-4">
+            <h2 id="saudacao" class="h4 text-white fw-bold mb-0">Olá!</h2>
+            <button id="btn-sair" class="btn btn-outline-secondary btn-sm">Sair</button>
         </header>
-
+        
         <nav class="menu-icones">
-            <button class="btn-icone" id="btn-holerite">
-                <span class="icone">💰</span>
-                <span>Meu Holerite</span>
-            </button>
-            <button class="btn-icone" id="btn-avisos">
-                <span class="icone">📢</span>
-                <span>Avisos</span>
-            </button>
-            <button class="btn-icone" id="btn-falar-rh">
-                <span class="icone">🎧</span>
-                <span>Falar com RH</span>
-            </button>
-            <button class="btn-icone" id="btn-faq">
-                <span class="icone">❔</span>
-                <span>Dúvidas</span>
-            </button>
-            <button class="btn-icone" id="btn-banco-horas">
-                <span class="icone">⏱️</span>
-                <span>Banco de Horas</span>
-            </button>
-            <button class="btn-icone" id="btn-ferias">
-                <span class="icone">🏖️</span>
-                <span>Minhas Férias</span>
-            </button>
+            <div class="row g-3">
+                <div class="col-6">
+                    <a href="#" class="card btn-icone-card shadow-sm" id="btn-holerite">
+                        <span class="icone">💰</span>
+                        <span>Meu Holerite</span>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" class="card btn-icone-card shadow-sm" id="btn-falar-rh">
+                        <span class="icone">🎧</span>
+                        <span>Falar com RH</span>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" class="card btn-icone-card shadow-sm" id="btn-avisos">
+                        <span class="icone">📢</span>
+                        <span>Avisos</span>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" class="card btn-icone-card shadow-sm" id="btn-faq">
+                        <span class="icone">❔</span>
+                        <span>Dúvidas</span>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" class="card btn-icone-card shadow-sm" id="btn-banco-horas">
+                        <span class="icone">⏱️</span>
+                        <span>Banco de Horas</span>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="#" class="card btn-icone-card shadow-sm" id="btn-ferias">
+                        <span class="icone">🏖️</span>
+                        <span>Minhas Férias</span>
+                    </a>
+                </div>
+            </div>
         </nav>
     </main>
 
-    <div id="tela-holerite-detalhe" class="modal-container" style="display: none;">
-        <div class="modal-content">
-            <button class="btn-fechar-modal" id="btn-fechar-holerite">X</button>
-            <h3>Meu Holerite</h3>
-            <div class="holerite-valor">
-                <span id="holerite-valor-liquido">R$ 0,00</span>
+    <div class="modal fade" id="tela-holerite-detalhe" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">Meu Holerite</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-holerite"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="display-valor-container">
+                        <span id="holerite-valor-liquido" class="valor-principal">R$ 0,00</span>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button id="btn-ouvir-holerite" class="btn btn-primary">▶️ Ouvir Valor</button>
+                        <button id="btn-baixar-pdf" class="btn btn-outline-primary" style="display: none;">Baixar PDF Completo</button>
+                    </div>
+                    <p id="holerite-error" class="text-danger text-center mt-3"></p>
+                </div>
             </div>
-            <button id="btn-ouvir-holerite" class="btn-grande">
-                ▶️ Ouvir Valor
-            </button>
-            <button id="btn-baixar-pdf" class="btn-grande btn-secundario" style="display: none;">
-                Baixar Holerite Completo (PDF)
-            </button>
-            <p id="holerite-error" class="error-msg"></p>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="tela-rh-gravar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">Fale com o RH</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-rh"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Grave sua dúvida. O RH irá te responder assim que possível.</p>
+                    <div class="gravador text-center">
+                        <audio id="audio-preview" controls class="mb-3 w-100" style="display: none;"></audio>
+                        <div class="d-grid gap-2">
+                            <button id="btn-gravar-audio" class="btn btn-lg btn-gravar text-white">🎤 Gravar</button>
+                            <button id="btn-parar-audio" class="btn btn-lg btn-parar text-white" style="display: none;">⏹️ Parar</button>
+                            <button id="btn-enviar-audio" class="btn btn-primary btn-lg" style="display: none;" disabled>📤 Enviar Áudio</button>
+                        </div>
+                    </div>
+                    <p id="rh-status" class="text-primary text-center mt-3"></p>
+                </div>
+            </div>
         </div>
     </div>
 
-
-    <div id="tela-rh-gravar" class="modal-container" style="display: none;">
-        <div class="modal-content">
-            <button class="btn-fechar-modal" id="btn-fechar-rh">X</button>
-            <h3>Fale com o RH</h3>
-            <p>Grave sua dúvida ou solicitação. O RH irá te responder assim que possível.</p>
-
-            <div class="gravador">
-                <button id="btn-gravar-audio" class="btn-grande btn-gravar">
-                    🎤 Gravar
-                </button>
-                <button id="btn-parar-audio" class="btn-grande btn-parar" style="display: none;">
-                    ⏹️ Parar Gravação
-                </button>
-
-                <audio id="audio-preview" controls style="display: none; width: 100%; margin-top: 15px;"></audio>
-
-                <button id="btn-enviar-audio" class="btn-grande" style="display: none;" disabled>
-                    📤 Enviar Áudio
-                </button>
+    <div class="modal fade" id="tela-avisos" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">📢 Avisos da Usina</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-avisos"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="lista-avisos-container">
+                        </div>
+                    <p id="avisos-status" class="text-primary text-center mt-3"></p>
+                </div>
             </div>
-
-            <p id="rh-status" class="status-msg"></p>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="tela-faq" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">❔ Dúvidas Frequentes</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-faq"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="lista-faq-container">
+                        </div>
+                    <p id="faq-status" class="text-primary text-center mt-3"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="tela-banco-horas" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">⏱️ Meu Banco de Horas</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-banco-horas"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="display-valor-container">
+                        <span id="banco-horas-valor" class="valor-principal">0h 00min</span>
+                        <span id="banco-horas-data" class="valor-subtitulo"></span>
+                    </div>
+                    <div class="d-grid">
+                        <button id="btn-ouvir-banco-horas" class="btn btn-primary">▶️ Ouvir Saldo</button>
+                    </div>
+                    <p id="banco-horas-status" class="text-danger text-center mt-3"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="tela-ferias" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">🏖️ Minhas Férias</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-ferias"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="display-valor-container">
+                        <span id="ferias-status" class="valor-subtitulo"></span>
+                        <span id="ferias-data" class="valor-principal">--/--/----</span>
+                        <span id="ferias-saldo-dias" class="valor-subtitulo fw-bold"></span>
+                    </div>
+                    <div class="d-grid">
+                        <button id="btn-ouvir-ferias" class="btn btn-primary">▶️ Ouvir Detalhes</button>
+                    </div>
+                    <p id="ferias-msg-status" class="text-danger text-center mt-3"></p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="tela-avisos" class="modal-container" style="display: none;">
-        <div class="modal-content">
-            <button class="btn-fechar-modal" id="btn-fechar-avisos">X</button>
-            <h3>📢 Avisos da Usina</h3>
-
-            <div id="lista-avisos-container">
-            </div>
-
-            <p id="avisos-status" class="status-msg"></p>
-        </div>
-    </div>
-
-
-    <div id="tela-faq" class="modal-container" style="display: none;">
-        <div class="modal-content">
-            <button class="btn-fechar-modal" id="btn-fechar-faq">X</button>
-            <h3>❔ Dúvidas Frequentes</h3>
-
-            <div id="lista-faq-container">
-            </div>
-
-            <p id="faq-status" class="status-msg"></p>
-        </div>
-    </div>
-
-    <div id="tela-banco-horas" class="modal-container" style="display: none;">
-        <div class="modal-content">
-            <button class="btn-fechar-modal" id="btn-fechar-banco-horas">X</button>
-            <h3>⏱️ Meu Banco de Horas</h3>
-
-            <div class="display-valor-container">
-                <span id="banco-horas-valor">0h 00min</span>
-                <span id="banco-horas-data" class="data-atualizacao"></span>
-            </div>
-
-            <button id="btn-ouvir-banco-horas" class="btn-grande">
-                ▶️ Ouvir Saldo
-            </button>
-
-            <p id="banco-horas-status" class="status-msg"></p>
-        </div>
-    </div>
-
-    <div id="tela-ferias" class="modal-container" style="display: none;">
-        <div class="modal-content">
-            <button class="btn-fechar-modal" id="btn-fechar-ferias">X</button>
-            <h3>🏖️ Minhas Férias</h3>
-
-            <div class="display-valor-container">
-                <span id="ferias-status" class="data-atualizacao"></span>
-                <span id="ferias-data">--/--/----</span>
-                <span id="ferias-saldo-dias" class="data-atualizacao"></span>
-            </div>
-
-            <button id="btn-ouvir-ferias" class="btn-grande">
-                ▶️ Ouvir Detalhes
-            </button>
-
-            <p id="ferias-msg-status" class="status-msg"></p>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
     <script src="app.js"></script>
 </body>
-
 </html>

@@ -20,6 +20,8 @@ namespace UsinaApi.Data
 
         public DbSet<BancoHoras> BancoHoras { get; set; }
 
+        public DbSet<Ferias> Ferias { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

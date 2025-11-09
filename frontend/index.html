@@ -55,6 +55,10 @@
                 <span class="icone">⏱️</span>
                 <span>Banco de Horas</span>
             </button>
+            <button class="btn-icone" id="btn-ferias">
+                <span class="icone">🏖️</span>
+                <span>Minhas Férias</span>
+            </button>
         </nav>
     </main>
 
@@ -141,6 +145,25 @@
             </button>
 
             <p id="banco-horas-status" class="status-msg"></p>
+        </div>
+    </div>
+
+    <div id="tela-ferias" class="modal-container" style="display: none;">
+        <div class="modal-content">
+            <button class="btn-fechar-modal" id="btn-fechar-ferias">X</button>
+            <h3>🏖️ Minhas Férias</h3>
+
+            <div class="display-valor-container">
+                <span id="ferias-status" class="data-atualizacao"></span>
+                <span id="ferias-data">--/--/----</span>
+                <span id="ferias-saldo-dias" class="data-atualizacao"></span>
+            </div>
+
+            <button id="btn-ouvir-ferias" class="btn-grande">
+                ▶️ Ouvir Detalhes
+            </button>
+
+            <p id="ferias-msg-status" class="status-msg"></p>
         </div>
     </div>
 

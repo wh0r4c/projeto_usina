@@ -70,6 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnOuvirBancoHoras = document.getElementById('btn-ouvir-banco-horas');
     const bancoHorasStatus = document.getElementById('banco-horas-status');
 
+    // Seletores do Modal Férias
+    const modalFerias = document.getElementById('tela-ferias');
+    const btnFerias = document.getElementById('btn-ferias');
+    const btnFecharFerias = document.getElementById('btn-fechar-ferias');
+    const feriasStatus = document.getElementById('ferias-status');
+    const feriasData = document.getElementById('ferias-data');
+    const feriasSaldoDias = document.getElementById('ferias-saldo-dias');
+    const btnOuvirFerias = document.getElementById('btn-ouvir-ferias');
+    const feriasMsgStatus = document.getElementById('ferias-msg-status');
+
     // --- FUNÇÕES DE LÓGICA ---
 
     // Mostra/esconde telas
@@ -540,6 +550,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- FUNÇÕES DO MÓDULO FÉRIAS ---
+
+    async function carregarFerias() {
+        feriasMsgStatus.textContent = 'Carregando dados...';
+
+        if (!currentToken) {
+            feriasMsgStatus.textContent = 'Erro de autenticação.';
+            return;
+        }
+
+        modalFerias.style.display = 'flex'; // Mostra o modal
+
+        try {
+            const resposta = await fetch(`${API_BASE_URL}/api/ferias`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+
+            if (!resposta.ok) {
+                throw new Error('Não foi possível carregar os dados de férias.');
+            }
+
+            const dados = await resposta.json();
+
+            feriasMsgStatus.textContent = ''; // Limpa o status
+
+            feriasStatus.textContent = dados.status;
+            feriasData.textContent = dados.dataProgramada;
+            feriasSaldoDias.textContent = `Saldo: ${dados.diasDeSaldo}`;
+
+            // Configura o botão de ouvir
+            btnOuvirFerias.onclick = () => {
+                falarTexto(dados.textoParaFala);
+            };
+
+        } catch (err) {
+            feriasMsgStatus.textContent = `Erro: ${err.message}`;
+        }
+    }
+
     // Função de Falar (Text-to-Speech)
     function falar() {
         if ('speechSynthesis' in window && textoParaFalar) {
@@ -594,6 +644,13 @@ document.addEventListener('DOMContentLoaded', () => {
     btnBancoHoras.addEventListener('click', carregarBancoHoras);
     btnFecharBancoHoras.addEventListener('click', () => {
         modalBancoHoras.style.display = 'none';
+        window.speechSynthesis.cancel(); // Para a fala se fechar
+    });
+
+    // Eventos do Modal Férias
+    btnFerias.addEventListener('click', carregarFerias);
+    btnFecharFerias.addEventListener('click', () => {
+        modalFerias.style.display = 'none';
         window.speechSynthesis.cancel(); // Para a fala se fechar
     });
 

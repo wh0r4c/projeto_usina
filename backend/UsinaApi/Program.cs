@@ -186,7 +186,7 @@ static void SeedDatabase(AppDbContext context)
 
         context.SaveChanges();
     }
-    
+
     if (context.Usuarios.Any() && !context.BancoHoras.Any())
     {
         var usuarioTeste = context.Usuarios.First(u => u.Cpf == "12345678900");
@@ -196,6 +196,21 @@ static void SeedDatabase(AppDbContext context)
             HorasAcumuladas = 12.5m, // 12 horas e meia
             DataAtualizacao = DateTime.UtcNow,
             TextoParaFala = "Você possui um saldo positivo de 12 horas e 30 minutos."
+        });
+
+        context.SaveChanges();
+    }
+    
+    if (context.Usuarios.Any() && !context.Ferias.Any())
+    {
+        var usuarioTeste = context.Usuarios.First(u => u.Cpf == "12345678900");
+        context.Ferias.Add(new Ferias
+        {
+            UsuarioId = usuarioTeste.Id,
+            DataInicio = new DateTime(2025, 12, 20),
+            DataFim = new DateTime(2026, 1, 5),
+            DiasDeSaldo = 10, // Ainda tem 10 dias de saldo
+            TextoParaFala = "As suas próximas férias estão programadas para começar no dia 20 de Dezembro de 2025."
         });
         
         context.SaveChanges();

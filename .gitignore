@@ -1,0 +1,22 @@
+# --- Backend (.NET) ---
+# Pastas de build
+[Bb]in/
+[Oo]bj/
+
+# Arquivos do Visual Studio e VS Code
+.vs/
+.vscode/
+
+# Arquivos de usuário e segredos
+*.user
+*.db
+*.sqlite
+secrets.json
+
+# --- Frontend ---
+# Se você um dia usar Node.js
+node_modules/
+
+# --- OS ---
+.DS_Store
+Thumbs.db

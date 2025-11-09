@@ -1,0 +1,348 @@
+/* Reset Básico e Configs Globais */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.tela {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* TELA DE LOGIN */
+#tela-login h1 {
+    text-align: center;
+    color: #1a237e;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+
+.btn-grande {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #1a237e;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.btn-grande:disabled {
+    background-color: #9fa8da;
+}
+
+.btn-secundario {
+    background-color: #5c6bc0;
+}
+
+.error-msg {
+    color: #d32f2f;
+    text-align: center;
+    margin-top: 16px;
+    font-weight: 500;
+}
+
+/* TELA PRINCIPAL */
+#tela-principal header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+#tela-principal h2 {
+    font-size: 1.5rem;
+    color: #1a237e;
+}
+
+#btn-sair {
+    padding: 8px 12px;
+    background: none;
+    border: 1px solid #c5cae9;
+    color: #3f51b5;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.menu-icones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.btn-icone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px solid #c5cae9;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+    height: 120px;
+}
+
+.btn-icone:disabled {
+    background-color: #e8eaf6;
+    color: #9fa8da;
+    cursor: not-allowed;
+}
+
+.btn-icone .icone {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+/* MODAL HOLERITE */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.btn-fechar-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.holerite-valor {
+    text-align: center;
+    margin: 24px 0;
+}
+
+#holerite-valor-liquido {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1a237e;
+}
+
+/* --- Estilos da v2: Gravador RH --- */
+
+.btn-gravar {
+    background-color: #c62828; /* Vermelho */
+}
+.btn-parar {
+    background-color: #37474f; /* Cinza escuro */
+}
+.btn-gravar:disabled,
+.btn-parar:disabled {
+    background-color: #aaa;
+}
+
+.gravador {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.status-msg {
+    color: #0277bd;
+    text-align: center;
+    margin-top: 16px;
+    font-weight: 500;
+}
+
+/* --- Estilos da v3: Avisos --- */
+
+#lista-avisos-container {
+    margin-top: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.aviso-card {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.aviso-card h4 {
+    font-size: 1.2rem;
+    color: #1a237e;
+    margin-bottom: 8px;
+}
+
+.aviso-card p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.aviso-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aviso-card-footer .data-aviso {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.aviso-card-footer .btn-ouvir-aviso {
+    background: none;
+    border: 1px solid #1a237e;
+    color: #1a237e;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* --- Estilos da v4: FAQs --- */
+
+#lista-faq-container {
+    margin-top: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.faq-card {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.faq-pergunta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    cursor: pointer;
+}
+
+.faq-pergunta h4 {
+    font-size: 1.1rem;
+    color: #1a237e;
+    margin: 0;
+}
+
+/* Esconde a resposta por padrão */
+.faq-resposta {
+    padding: 0 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.faq-resposta p {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.faq-resposta .btn-ouvir-faq {
+    background: none;
+    border: 1px solid #1a237e;
+    color: #1a237e;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+/* Mostra a resposta quando o card está ativo */
+.faq-card.active .faq-resposta {
+    max-height: 300px; /* Altura suficiente para a resposta */
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* --- Estilos da v5: Banco de Horas --- */
+
+.display-valor-container {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.display-valor-container span {
+    display: block;
+}
+
+/* Estilo principal para o valor */
+#banco-horas-valor {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1a237e;
+}
+
+/* Estilo para a data de atualização */
+.data-atualizacao {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 8px;
+}
+
+/* Reutilizando o estilo do holerite */
+#holerite-valor-liquido {
+    display: block;
+}
+.holerite-valor {
+    text-align: center;
+    margin: 24px 0;
+}

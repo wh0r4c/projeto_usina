@@ -1,0 +1,6 @@
+@UsinaApi_HostAddress = http://localhost:5104
+
+GET {{UsinaApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

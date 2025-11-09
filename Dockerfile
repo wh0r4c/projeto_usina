@@ -19,6 +19,7 @@ RUN dotnet publish ./backend/UsinaApi/UsinaApi.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+RUN dotnet tool install --global dotnet-ef
 
-# O comando para iniciar (que já tínhamos)
+# O comando para iniciar 
 ENTRYPOINT ["sh", "-c", "dotnet ef database update && dotnet UsinaApi.dll"]

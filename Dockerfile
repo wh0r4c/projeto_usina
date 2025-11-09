@@ -22,4 +22,4 @@ COPY --from=build /app/publish .
 RUN dotnet tool install --global dotnet-ef
 
 # O comando para iniciar 
-ENTRYPOINT ["sh", "-c", "dotnet ef database update && dotnet UsinaApi.dll"]
+ENTRYPOINT ["sh", "-c", "export PATH=\"$PATH:/root/.dotnet/tools\" && dotnet ef database update && dotnet UsinaApi.dll"]

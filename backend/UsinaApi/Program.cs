@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Adiciona o Contexto do Banco (SQLite)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString));
 
 // Adiciona Autenticação JWT
 var jwtKey = builder.Configuration["Jwt:Key"];

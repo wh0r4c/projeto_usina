@@ -1,3 +1,3 @@
-# Exclui pastas de build e cache
+# Ignora as pastas de build do C#
 **/bin/
 **/obj/

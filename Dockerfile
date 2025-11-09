@@ -1,22 +1,24 @@
 # --- Estágio 1: O "Build" (Compilação) ---
-# (Esta parte continua igual)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY *.csproj .
-RUN dotnet restore
+
+# Copia o ficheiro .csproj (especificando o caminho completo)
+COPY backend/UsinaApi/UsinaApi.csproj ./backend/UsinaApi/
+
+# Restaura os pacotes para esse projeto
+RUN dotnet restore ./backend/UsinaApi/UsinaApi.csproj
+
+# Copia todo o resto do código-fonte
 COPY . .
-RUN dotnet publish -c Release -o /app/publish
+
+# Publica o projeto (especificando o caminho completo)
+# NOTA: O WORKDIR continua a ser /src
+RUN dotnet publish ./backend/UsinaApi/UsinaApi.csproj -c Release -o /app/publish
 
 # --- Estágio 2: O "Runtime" (Execução) ---
-# MUDANÇA AQUI: Trocamos "aspnet:8.0" por "sdk:8.0"
-# Precisamos da imagem "sdk" completa porque ela contém 
-# as ferramentas "dotnet ef" que precisamos para a migração.
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# MUDANÇA AQUI: O novo ENTRYPOINT
-# Esta linha diz ao Render para:
-# 1. Rodar o "database update" (que vai criar o banco na primeira vez)
-# 2. E ENTÃO ("&&") rodar o app principal "UsinaApi.dll"
+# O comando para iniciar (que já tínhamos)
 ENTRYPOINT ["sh", "-c", "dotnet ef database update && dotnet UsinaApi.dll"]

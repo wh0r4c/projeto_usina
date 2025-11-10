@@ -24,7 +24,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="pin" class="form-label fw-medium">PIN</label>
-                    <input type="password" class="form-control form-control-lg" id="pin" inputmode="numeric" maxlength="4" required>
+                    <input type="password" class="form-control form-control-lg" id="pin" inputmode="numeric" required style="text-transform: uppercase;">
                 </div>
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold">Entrar</button>
@@ -196,6 +196,40 @@
                         <button id="btn-ouvir-ferias" class="btn btn-primary">▶️ Ouvir Detalhes</button>
                     </div>
                     <p id="ferias-msg-status" class="text-danger text-center mt-3"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="tela-definir-pin" 
+         tabindex="-1" 
+         data-bs-backdrop="static"  data-bs-keyboard="false"> <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">Bem-vindo! Crie o seu PIN</h3>
+                    </div>
+                <div class="modal-body">
+                    <p>Este é o seu primeiro acesso. Para sua segurança, por favor, crie um PIN pessoal de 4 dígitos.</p>
+                    
+                    <form id="definir-pin-form">
+                        <div class="mb-3">
+                            <label for="novo-pin-1" class="form-label">Novo PIN de 4 dígitos</label>
+                            <input type="password" class="form-control form-control-lg" 
+                                   id="novo-pin-1" inputmode="numeric" 
+                                   maxlength="4" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="novo-pin-2" class="form-label">Confirme o novo PIN</label>
+                            <input type="password" class="form-control form-control-lg" 
+                                   id="novo-pin-2" inputmode="numeric" 
+                                   maxlength="4" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" id="btn-salvar-pin" class="btn btn-primary btn-lg">Salvar e Entrar</button>
+                        </div>
+                        <p id="definir-pin-status" class="text-danger text-center mt-3"></p>
+                    </form>
+
                 </div>
             </div>
         </div>

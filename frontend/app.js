@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- VARIÁVEIS E CONSTANTES ---
-    const API_BASE_URL = 'https://projeto-usina.onrender.com'; // Mantenha a sua porta!
+    const API_BASE_URL = 'https://projeto-usina.onrender.com'; // Mantenha a sua URL de produção!
     let currentToken = null;
     let textoParaFalar = '';
 
@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSair = document.getElementById('btn-sair');
     
     // --- INICIALIZAÇÃO DOS MODAIS BOOTSTRAP ---
-    // Pegamos o elemento HTML E criamos um "controlador" do Bootstrap para ele
     
     // Holerite
     const modalHoleriteEl = document.getElementById('tela-holerite-detalhe');
@@ -77,12 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnOuvirFerias = document.getElementById('btn-ouvir-ferias');
     const feriasMsgStatus = document.getElementById('ferias-msg-status');
 
+    // ** NOVO MODAL (v7) **
+    const modalDefinirPinEl = document.getElementById('tela-definir-pin');
+    const bsModalDefinirPin = new bootstrap.Modal(modalDefinirPinEl, { backdrop: 'static', keyboard: false });
+    const definirPinForm = document.getElementById('definir-pin-form');
+    const novoPin1 = document.getElementById('novo-pin-1');
+    const novoPin2 = document.getElementById('novo-pin-2');
+    const definirPinStatus = document.getElementById('definir-pin-status');
+
+
     // --- FUNÇÕES DE LÓGICA ---
 
     function mostrarTela(tela) {
         telaLogin.style.display = 'none';
-        telaPrincipal.style.display = 'none';
-        tela.style.display = 'block';
+        telaPrincipal.style.display = 'block'; // MUDANÇA: Mostrar a tela principal
+        tela.style.display = 'block'; // Este parâmetro não é mais necessário, mas mantemos
     }
 
     async function fazerLogin(e) {
@@ -95,15 +103,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     cpf: inputCpf.value,
-                    pin: inputPin.value
+                    pin: inputPin.value // Isto é o PIN ou a Matrícula
                 })
             });
-            if (!resposta.ok) throw new Error('CPF ou PIN inválidos.');
+            if (!resposta.ok) throw new Error('CPF ou PIN/Matrícula inválidos.');
+            
             const dados = await resposta.json();
+            
+            // Salva o token e o nome imediatamente
             currentToken = dados.token;
             sessionStorage.setItem('token', dados.token);
             saudacao.textContent = `Olá, ${dados.nome}!`;
-            mostrarTela(telaPrincipal);
+
+            // ** AQUI ESTÁ A NOVA LÓGICA (v7) **
+            if (dados.status === 'primeiro_login') {
+                // É um novo utilizador, mostra o modal para definir o PIN
+                bsModalDefinirPin.show();
+            } else {
+                // É um utilizador normal, mostra o menu principal
+                mostrarTela(telaPrincipal);
+            }
+
         } catch (err) {
             loginError.textContent = err.message;
         }
@@ -115,7 +135,56 @@ document.addEventListener('DOMContentLoaded', () => {
         inputCpf.value = '';
         inputPin.value = '';
         mostrarTela(telaLogin);
+        // Recarrega a página para garantir que tudo é limpo
+        window.location.reload();
     }
+
+    // ** NOVA FUNÇÃO (v7) **
+    async function definirNovoPin(e) {
+        e.preventDefault();
+        definirPinStatus.textContent = '';
+
+        // 1. Validação do Frontend
+        if (novoPin1.value.length !== 4) {
+            definirPinStatus.textContent = 'O PIN deve ter exatamente 4 dígitos.';
+            return;
+        }
+        if (novoPin1.value !== novoPin2.value) {
+            definirPinStatus.textContent = 'Os PINs não coincidem. Tente novamente.';
+            return;
+        }
+        if (!currentToken) {
+             definirPinStatus.textContent = 'Erro de autenticação. Tente fazer o login novamente.';
+             return;
+        }
+
+        try {
+            // 2. Enviar o novo PIN para o backend
+            const resposta = await fetch(`${API_BASE_URL}/api/auth/definir-pin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}` // Envia o token do "primeiro_login"
+                },
+                body: JSON.stringify({
+                    novoPin: novoPin1.value
+                })
+            });
+
+            if (!resposta.ok) {
+                const erro = await resposta.json();
+                throw new Error(erro.message || 'Não foi possível definir o PIN.');
+            }
+
+            // 3. Sucesso!
+            bsModalDefinirPin.hide(); // Esconde o modal de PIN
+            mostrarTela(telaPrincipal); // Mostra o menu principal
+
+        } catch (err) {
+            definirPinStatus.textContent = err.message;
+        }
+    }
+
 
     // --- MÓDULO HOLERITE ---
     async function carregarHolerite(e) {
@@ -128,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        bsModalHolerite.show(); // MUDANÇA: Mostra o modal Bootstrap
+        bsModalHolerite.show(); // Mostra o modal Bootstrap
 
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/holerite`, {
@@ -443,6 +512,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', fazerLogin);
     btnSair.addEventListener('click', fazerLogout);
 
+    // ** NOVO LISTENER (v7) **
+    definirPinForm.addEventListener('submit', definirNovoPin);
+
     // Botões do Menu
     btnHolerite.addEventListener('click', carregarHolerite);
     btnFalarRh.addEventListener('click', abrirModalRh);
@@ -469,9 +541,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INICIALIZAÇÃO ---
     const tokenSalvo = sessionStorage.getItem('token');
     if (tokenSalvo) {
+        // Esta lógica mudou. Não podemos mais assumir que temos o nome
+        // ou que podemos mostrar a tela principal.
+        // Vamos simplificar e apenas guardar o token.
+        // Se o token for de um "primeiro_login", o backend vai 
+        // dar erro 401 nos endpoints de qualquer forma, 
+        // forçando o utilizador a fazer login de novo.
         currentToken = tokenSalvo;
-        saudacao.textContent = 'Olá!';
-        mostrarTela(telaPrincipal);
+        // Vamos verificar se o token ainda é válido (de forma simples)
+        // Se o utilizador já fez login antes, mostramos a tela.
+        // Esta parte da lógica pode ser melhorada, mas por agora
+        // vamos assumir que se o token existe, é de um login normal.
+        
+        // Vamos mudar esta lógica:
+        mostrarTela(telaLogin); // Sempre começa no login
+        // Se o tokenSalvo existir, o logout fará mais sentido
     } else {
         mostrarTela(telaLogin);
     }

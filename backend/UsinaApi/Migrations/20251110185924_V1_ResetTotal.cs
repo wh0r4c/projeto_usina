@@ -1,13 +1,12 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace UsinaApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialPostgresCreate : Migration
+    public partial class V1_ResetTotal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,13 +15,13 @@ namespace UsinaApi.Migrations
                 name: "Avisos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Titulo = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Conteudo = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    TextoParaFala = table.Column<string>(type: "text", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    NivelPrioridade = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Titulo = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Conteudo = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
+                    TextoParaFala = table.Column<string>(type: "TEXT", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    NivelPrioridade = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,12 +32,12 @@ namespace UsinaApi.Migrations
                 name: "Faqs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Pergunta = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Resposta = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
-                    TextoParaFala = table.Column<string>(type: "text", nullable: false),
-                    Ordem = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Pergunta = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    Resposta = table.Column<string>(type: "TEXT", maxLength: 2000, nullable: false),
+                    TextoParaFala = table.Column<string>(type: "TEXT", nullable: false),
+                    Ordem = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,11 +48,13 @@ namespace UsinaApi.Migrations
                 name: "Usuarios",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Cpf = table.Column<string>(type: "text", nullable: false),
-                    PinHash = table.Column<string>(type: "text", nullable: false),
-                    Nome = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Cpf = table.Column<string>(type: "TEXT", nullable: false),
+                    PinHash = table.Column<string>(type: "TEXT", nullable: true),
+                    Nome = table.Column<string>(type: "TEXT", nullable: false),
+                    Matricula = table.Column<string>(type: "TEXT", nullable: false),
+                    PinFoiDefinido = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,12 +65,12 @@ namespace UsinaApi.Migrations
                 name: "BancoHoras",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    HorasAcumuladas = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
-                    DataAtualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TextoParaFala = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UsuarioId = table.Column<int>(type: "INTEGER", nullable: false),
+                    HorasAcumuladas = table.Column<decimal>(type: "decimal(10, 2)", nullable: false),
+                    DataAtualizacao = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    TextoParaFala = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,13 +87,13 @@ namespace UsinaApi.Migrations
                 name: "Ferias",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    DataInicio = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DataFim = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DiasDeSaldo = table.Column<int>(type: "integer", nullable: false),
-                    TextoParaFala = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UsuarioId = table.Column<int>(type: "INTEGER", nullable: false),
+                    DataInicio = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataFim = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DiasDeSaldo = table.Column<int>(type: "INTEGER", nullable: false),
+                    TextoParaFala = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,12 +110,12 @@ namespace UsinaApi.Migrations
                 name: "GravacoesRh",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    CaminhoArquivo = table.Column<string>(type: "text", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Resolvido = table.Column<bool>(type: "boolean", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UsuarioId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CaminhoArquivo = table.Column<string>(type: "TEXT", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Resolvido = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -131,13 +132,13 @@ namespace UsinaApi.Migrations
                 name: "Holerites",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UsuarioId = table.Column<int>(type: "integer", nullable: false),
-                    MesAno = table.Column<string>(type: "text", nullable: false),
-                    ValorLiquido = table.Column<decimal>(type: "numeric", nullable: false),
-                    TextoParaFala = table.Column<string>(type: "text", nullable: false),
-                    CaminhoPdf = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UsuarioId = table.Column<int>(type: "INTEGER", nullable: false),
+                    MesAno = table.Column<string>(type: "TEXT", nullable: false),
+                    ValorLiquido = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TextoParaFala = table.Column<string>(type: "TEXT", nullable: false),
+                    CaminhoPdf = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

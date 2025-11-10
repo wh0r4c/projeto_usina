@@ -96,6 +96,9 @@ app.Run();
 
 static void SeedDatabase(AppDbContext context)
 {
+
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
     // Verifica se já existe um utilizador
     if (!context.Usuarios.Any())
     {

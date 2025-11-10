@@ -9,10 +9,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Configurar Serviços ---
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-// Adiciona o Contexto do Banco (SQLite)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+
+// --- 1. Configurar Serviços ---
+
+// Configura o banco de dados de forma inteligente
+// (Usa SQLite localmente e PostgreSQL em Produção)
+if (builder.Environment.IsProduction())
+{
+    // Usa Npgsql (PostgreSQL) quando estiver no Render
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString)); 
+}
+else
+{
+    // Usa SQLite quando estiver no seu PC (dotnet run)
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
 
 // Adiciona Autenticação JWT
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -48,7 +63,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("https://projeto-usina.netlify.app")
+            policy.WithOrigins(
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "https://projeto-usina.netlify.app"
+            )
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -70,42 +89,81 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Criar/Alimentar o banco de dados ao iniciar (para testes)
+// Criar/Alimentar o banco de dados ao iniciar
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AppDbContext>();
-    context.Database.Migrate(); // Cria o banco se não existir
+
+    if (app.Environment.IsProduction())
+    {
+        // Em produção (Render), executa as migrações (PostgreSQL)
+        context.Database.Migrate();
+    }
+    else
+    {
+        // Em desenvolvimento (local), apenas GARANTE que o 
+        // banco de dados (SQLite) seja criado.
+        context.Database.EnsureCreated(); // <-- ESTA É A CORREÇÃO MÁGICA
+    }
+    
     SeedDatabase(context); // Alimenta com dados de teste
 }
 
-app.UseHttpsRedirection();
+// --- 3. Configurar o Pipeline HTTP ---
 
-app.UseCors("AllowFrontend"); // Habilita o CORS
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-app.UseStaticFiles(); // Habilita o uso da pasta wwwroot
+// (O seu bloco using/SeedDatabase vem aqui...)
+using (var scope = app.Services.CreateScope())
+{
+    // ... (o seu código SeedDatabase) ...
+}
 
-app.UseAuthentication(); // Habilita autenticação (primeiro)
-app.UseAuthorization();  // Habilita autorização (depois)
+// A CORREÇÃO DE ORDEM COMEÇA AQUI
 
-app.MapControllers(); // Mapeia os controladores
+// app.UseHttpsRedirection(); // Mantenha comentado por agora
+
+// 1. Habilita o "roteamento" (para que ele saiba o que é um "controller")
+app.UseRouting();
+
+// 2. Habilita o CORS (agora ele pode adicionar cabeçalhos às rotas)
+app.UseCors("AllowFrontend");
+
+app.UseStaticFiles(); // (Este pode ficar aqui)
+
+// 3. Habilita a Autenticação
+app.UseAuthentication();
+
+// 4. Habilita a Autorização
+app.UseAuthorization();
+
+// 5. Mapeia os controllers (agora eles exigem autorização e usam CORS)
+app.MapControllers();
 
 app.Run();
+
+// ... (A sua função SeedDatabase fica aqui no fim) ...
 
 
 // --- 4. Método para alimentar o banco (Seed) ---
 
 static void SeedDatabase(AppDbContext context)
 {
-
     // Verifica se já existe um utilizador
     if (!context.Usuarios.Any())
     {
         var usuarioTeste = new Usuario
         {
             Cpf = "12345678900",
-            PinHash = BCrypt.Net.BCrypt.HashPassword("1234"), // Lembre-se, isto é inseguro!
-            Nome = "Leandro"
+            Nome = "Leandro",
+            Matricula = "MATRICULA123", // Esta é a "senha" temporária
+            PinHash = null, // Começa sem PIN
+            PinFoiDefinido = false // O "interruptor" está desligado
         };
         context.Usuarios.Add(usuarioTeste);
         context.SaveChanges(); // Salva para obter o ID
@@ -120,7 +178,7 @@ static void SeedDatabase(AppDbContext context)
         });
         context.SaveChanges();
     }
-    
+
     // Verifica se já existe um aviso
     if (!context.Avisos.Any())
     {
@@ -137,7 +195,7 @@ static void SeedDatabase(AppDbContext context)
             Conteudo = "Informamos que a primeira parcela do 13º salário será depositada no dia 20 deste mês.",
             TextoParaFala = "Informamos que a primeira parcela do décimo terceiro salário será depositada no dia 20 deste mês."
         });
-        
+
         context.SaveChanges();
     }
 
@@ -202,7 +260,7 @@ static void SeedDatabase(AppDbContext context)
 
         context.SaveChanges();
     }
-    
+
     if (context.Usuarios.Any() && !context.Ferias.Any())
     {
         var usuarioTeste = context.Usuarios.First(u => u.Cpf == "12345678900");
@@ -214,7 +272,7 @@ static void SeedDatabase(AppDbContext context)
             DiasDeSaldo = 10, // Ainda tem 10 dias de saldo
             TextoParaFala = "As suas próximas férias estão programadas para começar no dia 20 de Dezembro de 2025."
         });
-        
+
         context.SaveChanges();
     }
 }

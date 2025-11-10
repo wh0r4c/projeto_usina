@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
         {
             // --- FLUXO DE PRIMEIRO LOGIN ---
             // Compara o PIN enviado (que é a Matrícula) com a MATRÍCULA salva no banco
-            loginValido = (loginRequest.Pin == usuario.Matricula);
+            loginValido = string.Equals(loginRequest.Pin, usuario.Matricula, StringComparison.OrdinalIgnoreCase);
             statusLogin = "primeiro_login";
         }
 

@@ -19,4 +19,4 @@ COPY --from=build /app/publish .
 
 # O ÚNICO comando necessário: rodar a DLL.
 # O Program.cs dentro da DLL vai tratar da migração do banco.
-ENTRYPOINT ["dotnet", "UsinaApi.dll"]
+ENTRYPOINT ["sh", "-c", "echo '--- INICIANDO DIAGNÓSTICO ---' && echo 'Connection String: $ConnectionStrings__DefaultConnection' && echo 'JWT Key: $Jwt__Key' && echo '--- FIM DO DIAGNÓSTICO, APP EM PAUSA ---' && sleep 3600"]

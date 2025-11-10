@@ -11,8 +11,8 @@ using UsinaApi.Data;
 namespace UsinaApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251110185924_V1_ResetTotal")]
-    partial class V1_ResetTotal
+    [Migration("20251110191014_V2_FixPinHash")]
+    partial class V2_FixPinHash
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

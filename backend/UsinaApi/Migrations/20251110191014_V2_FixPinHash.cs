@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace UsinaApi.Migrations
 {
     /// <inheritdoc />
-    public partial class V1_ResetTotal : Migration
+    public partial class V2_FixPinHash : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

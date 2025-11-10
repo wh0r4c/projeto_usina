@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- VARIÁVEIS E CONSTANTES ---
-    const API_BASE_URL = 'http://localhost:5104'; // Mantenha a sua porta!
+    const API_BASE_URL = 'https://projeto-usina.onrender.com'; // Mantenha a sua porta!
     let currentToken = null;
     let textoParaFalar = '';
 

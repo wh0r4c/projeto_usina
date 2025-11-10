@@ -48,9 +48,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://127.0.0.1:5500", "https://projeto-usina.netlify.app/")
+            policy.WithOrigins("https://projeto-usina.netlify.app")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 

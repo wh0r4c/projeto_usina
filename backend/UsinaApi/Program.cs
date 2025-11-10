@@ -8,7 +8,7 @@ using UsinaApi.Models; // Importe os models
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Configurar Serviços ---
-
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Adiciona o Contexto do Banco (SQLite)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -96,8 +96,6 @@ app.Run();
 
 static void SeedDatabase(AppDbContext context)
 {
-
-    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
     // Verifica se já existe um utilizador
     if (!context.Usuarios.Any())

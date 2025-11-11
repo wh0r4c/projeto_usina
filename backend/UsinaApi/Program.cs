@@ -201,7 +201,7 @@ static void SeedDatabase(AppDbContext context)
         {
             Cpf = "12345678900",
             Nome = "Leandro",
-            Matricula = "MATRICULA123", // Esta é a "senha" temporária
+            Matricula = "123456", // Esta é a "senha" temporária
             PinHash = null, // Começa sem PIN
             PinFoiDefinido = false // O "interruptor" está desligado
         };
@@ -332,7 +332,7 @@ static void SeedDatabase(AppDbContext context)
 
             // Campos de colaborador (não necessários para o admin)
             Cpf = "00000000000",
-            Matricula = "ADMIN001",
+            Matricula = "000001",
             PinFoiDefinido = true // Já está definido
         });
 

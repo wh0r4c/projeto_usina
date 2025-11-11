@@ -19,14 +19,16 @@ if (builder.Environment.IsProduction())
     // Usa Npgsql (PostgreSQL) quando estiver no Render
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(connectionString)); 
+        options.UseNpgsql(connectionString));
 }
 else
 {
     // Usa SQLite quando estiver no seu PC (dotnet run)
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(connectionString));
+    options.UseSqlite(connectionString));
+    //builder.Services.AddDbContext<AppDbContext>(options =>
+        //options.UseNpgsql());
 }
 
 // Adiciona Autenticação JWT
@@ -106,7 +108,7 @@ using (var scope = app.Services.CreateScope())
         // banco de dados (SQLite) seja criado.
         context.Database.EnsureCreated(); // <-- ESTA É A CORREÇÃO MÁGICA
     }
-    
+
     SeedDatabase(context); // Alimenta com dados de teste
 }
 
@@ -271,6 +273,29 @@ static void SeedDatabase(AppDbContext context)
             DataFim = new DateTime(2026, 1, 5),
             DiasDeSaldo = 10, // Ainda tem 10 dias de saldo
             TextoParaFala = "As suas próximas férias estão programadas para começar no dia 20 de Dezembro de 2025."
+        });
+
+        context.SaveChanges();
+    }
+
+    // ... (depois do "if" das Ferias) ...
+
+    // VERIFICA SE JÁ EXISTE UM ADMIN
+    if (!context.Usuarios.Any(u => u.IsAdmin))
+    {
+        // Cria um utilizador Admin (RH)
+        context.Usuarios.Add(new Usuario
+        {
+            Nome = "Admin RH",
+            Email = "rh@usina.com", // O login dele
+            // Senha complexa "Admin@123" (já com hash)
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            IsAdmin = true,
+
+            // Campos de colaborador (não necessários para o admin)
+            Cpf = "00000000000",
+            Matricula = "ADMIN001",
+            PinFoiDefinido = true // Já está definido
         });
 
         context.SaveChanges();

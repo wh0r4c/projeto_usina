@@ -19,5 +19,10 @@ namespace UsinaApi.Models
         public string Matricula { get; set; } = string.Empty;
 
         public bool PinFoiDefinido { get; set; } = false;
+
+        public bool IsAdmin { get; set; } = false;
+
+        public string? Email { get; set; }
+        public string? PasswordHash { get; set; }
     }
 }

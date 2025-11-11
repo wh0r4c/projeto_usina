@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UsinaApi.Data;
 using UsinaApi.Models; // Importe os models
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,7 +80,42 @@ builder.Services.AddCors(options =>
 
 // Adiciona serviços de API (Swagger - documentação)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // 1. Define as configurações do seu projeto
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "UsinaApi",
+        Version = "v1"
+    });
+
+    // 2. Define o "Cadeado" (Segurança de Token Bearer)
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Por favor, insira 'Bearer ' (com espaço) e depois o seu token JWT."
+    });
+
+    // 3. Diz ao Swagger para aplicar este "Cadeado" a todos os endpoints
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 // --- 2. Construir a Aplicação ---
 var app = builder.Build();

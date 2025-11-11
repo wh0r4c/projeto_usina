@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError = document.getElementById('login-error');
     const saudacao = document.getElementById('saudacao');
     const btnSair = document.getElementById('btn-sair');
-    const cpfLimpo = inputCpf.value.replace(/\D/g, '');
 
     // --- INICIALIZAÇÃO DOS MODAIS BOOTSTRAP ---
 
@@ -109,13 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         loginError.textContent = '';
 
+        const cpfLimpo = inputCpf.value.replace(/\D/g, '');
+        const pinLimpo = inputPin.value.trim();
+
         try {
             const resposta = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     cpf: cpfLimpo,
-                    pin: inputPin.value // Isto é o PIN ou a Matrícula
+                    pin: pinLimpo // Isto é o PIN ou a Matrícula
                 })
             });
             if (!resposta.ok) throw new Error('CPF ou PIN/Matrícula inválidos.');

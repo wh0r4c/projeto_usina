@@ -27,8 +27,10 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
     {
+        var cpfLimpo = new string(loginRequest.Cpf.Where(char.IsDigit).ToArray());
+        
         var usuario = await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.Cpf == loginRequest.Cpf);
+            .FirstOrDefaultAsync(u => u.Cpf == cpfLimpo);
 
         // 1. Se o CPF não for encontrado, falha.
         if (usuario == null)

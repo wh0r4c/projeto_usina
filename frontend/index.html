@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistente Usina</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
     <link rel="stylesheet" href="style.css">
-    
+
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4E004E"/>
+    <meta name="theme-color" content="#4E004E" />
 </head>
+
 <body class="d-flex align-items-center justify-content-center">
 
     <main id="tela-login" class="container login-container">
@@ -20,14 +23,23 @@
             <form id="login-form">
                 <div class="mb-3">
                     <label for="cpf" class="form-label fw-medium">CPF</label>
-                    <input type="tel" class="form-control form-control-lg" id="cpf" placeholder="Apenas números" required>
+                    <input type="tel" class="form-control form-control-lg" id="cpf" placeholder="Apenas números" required maxlength="14"
+                        required>
                 </div>
                 <div class="mb-3">
                     <label for="pin" class="form-label fw-medium">PIN</label>
-                    <input type="password" class="form-control form-control-lg" id="pin" inputmode="numeric" required style="text-transform: uppercase;">
+                    <input type="password" class="form-control form-control-lg" id="pin" inputmode="numeric" required
+                        style="text-transform: uppercase;"
+                        maxlength="6">
                 </div>
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold">Entrar</button>
+                    <div class="text-center mt-3">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modal-ajuda-login">
+                            Precisa de ajuda para entrar?
+                        </a>
+                    </div>
+                    <p id="login-error" class="text-danger text-center mt-3"></p>
                 </div>
                 <p id="login-error" class="text-danger text-center mt-3"></p>
             </form>
@@ -39,7 +51,7 @@
             <h2 id="saudacao" class="h4 text-white fw-bold mb-0">Olá!</h2>
             <button id="btn-sair" class="btn btn-outline-secondary btn-sm">Sair</button>
         </header>
-        
+
         <nav class="menu-icones">
             <div class="row g-3">
                 <div class="col-6">
@@ -95,14 +107,15 @@
                     </div>
                     <div class="d-grid gap-2">
                         <button id="btn-ouvir-holerite" class="btn btn-primary">▶️ Ouvir Valor</button>
-                        <button id="btn-baixar-pdf" class="btn btn-outline-primary" style="display: none;">Baixar PDF Completo</button>
+                        <button id="btn-baixar-pdf" class="btn btn-outline-primary" style="display: none;">Baixar PDF
+                            Completo</button>
                     </div>
                     <p id="holerite-error" class="text-danger text-center mt-3"></p>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="modal fade" id="tela-rh-gravar" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -116,8 +129,10 @@
                         <audio id="audio-preview" controls class="mb-3 w-100" style="display: none;"></audio>
                         <div class="d-grid gap-2">
                             <button id="btn-gravar-audio" class="btn btn-lg btn-gravar text-white">🎤 Gravar</button>
-                            <button id="btn-parar-audio" class="btn btn-lg btn-parar text-white" style="display: none;">⏹️ Parar</button>
-                            <button id="btn-enviar-audio" class="btn btn-primary btn-lg" style="display: none;" disabled>📤 Enviar Áudio</button>
+                            <button id="btn-parar-audio" class="btn btn-lg btn-parar text-white"
+                                style="display: none;">⏹️ Parar</button>
+                            <button id="btn-enviar-audio" class="btn btn-primary btn-lg" style="display: none;"
+                                disabled>📤 Enviar Áudio</button>
                         </div>
                     </div>
                     <p id="rh-status" class="text-primary text-center mt-3"></p>
@@ -135,13 +150,13 @@
                 </div>
                 <div class="modal-body">
                     <div id="lista-avisos-container">
-                        </div>
+                    </div>
                     <p id="avisos-status" class="text-primary text-center mt-3"></p>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="modal fade" id="tela-faq" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -151,19 +166,20 @@
                 </div>
                 <div class="modal-body">
                     <div id="lista-faq-container">
-                        </div>
+                    </div>
                     <p id="faq-status" class="text-primary text-center mt-3"></p>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="modal fade" id="tela-banco-horas" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0">
                     <h3 class="modal-title h5 text-primary fw-medium">⏱️ Meu Banco de Horas</h3>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-banco-horas"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        id="btn-fechar-banco-horas"></button>
                 </div>
                 <div class="modal-body">
                     <div class="display-valor-container">
@@ -178,7 +194,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="modal fade" id="tela-ferias" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -201,31 +217,30 @@
         </div>
     </div>
 
-    <div class="modal fade" id="tela-definir-pin" 
-         tabindex="-1" 
-         data-bs-backdrop="static"  data-bs-keyboard="false"> <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="tela-definir-pin" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0">
                     <h3 class="modal-title h5 text-primary fw-medium">Bem-vindo! Crie o seu PIN</h3>
-                    </div>
+                </div>
                 <div class="modal-body">
-                    <p>Este é o seu primeiro acesso. Para sua segurança, por favor, crie um PIN pessoal de 4 dígitos.</p>
-                    
+                    <p>Este é o seu primeiro acesso. Para sua segurança, por favor, crie um PIN pessoal de 4 dígitos.
+                    </p>
+
                     <form id="definir-pin-form">
                         <div class="mb-3">
                             <label for="novo-pin-1" class="form-label">Novo PIN de 4 dígitos</label>
-                            <input type="password" class="form-control form-control-lg" 
-                                   id="novo-pin-1" inputmode="numeric" 
-                                   maxlength="4" required>
+                            <input type="password" class="form-control form-control-lg" id="novo-pin-1"
+                                inputmode="numeric" maxlength="4" required>
                         </div>
                         <div class="mb-3">
                             <label for="novo-pin-2" class="form-label">Confirme o novo PIN</label>
-                            <input type="password" class="form-control form-control-lg" 
-                                   id="novo-pin-2" inputmode="numeric" 
-                                   maxlength="4" required>
+                            <input type="password" class="form-control form-control-lg" id="novo-pin-2"
+                                inputmode="numeric" maxlength="4" required>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" id="btn-salvar-pin" class="btn btn-primary btn-lg">Salvar e Entrar</button>
+                            <button type="submit" id="btn-salvar-pin" class="btn btn-primary btn-lg">Salvar e
+                                Entrar</button>
                         </div>
                         <p id="definir-pin-status" class="text-danger text-center mt-3"></p>
                     </form>
@@ -235,8 +250,40 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    
+    <div class="modal fade" id="modal-ajuda-login" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h3 class="modal-title h5 text-primary fw-medium">Como Entrar</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+
+                    <h4>Primeiro Acesso?</h4>
+                    <p>Se este é o seu primeiro acesso, use o seu **CPF** e a sua **Matrícula** (como PIN). O sistema
+                        irá pedir-lhe para criar um PIN pessoal de 4 dígitos.</p>
+
+                    <hr>
+
+                    <h4>Já tem um PIN?</h4>
+                    <p>Use o seu **CPF** e o **PIN pessoal de 4 dígitos** que você criou no primeiro acesso.</p>
+
+                    <hr>
+
+                    <h4>Esqueceu-se do PIN?</h4>
+                    <p>Por motivos de segurança, você deve **contactar o RH** (Recursos Humanos). O RH irá redefinir a
+                        sua conta e o seu próximo login será como um "Primeiro Acesso" (usando a sua Matrícula).</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
     <script src="app.js"></script>
 </body>
+
 </html>

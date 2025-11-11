@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError = document.getElementById('login-error');
     const saudacao = document.getElementById('saudacao');
     const btnSair = document.getElementById('btn-sair');
+    const cpfLimpo = inputCpf.value.replace(/\D/g, '');
 
     // --- INICIALIZAÇÃO DOS MODAIS BOOTSTRAP ---
 
@@ -113,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    cpf: inputCpf.value,
+                    cpf: cpfLimpo,
                     pin: inputPin.value // Isto é o PIN ou a Matrícula
                 })
             });

@@ -16,6 +16,7 @@ namespace UsinaApi.Models
         public ICollection<Holerite> Holerites { get; set; } = new List<Holerite>();
 
         [Required]
+        [MaxLength(6)]
         public string Matricula { get; set; } = string.Empty;
 
         public bool PinFoiDefinido { get; set; } = false;

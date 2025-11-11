@@ -12,6 +12,7 @@ namespace UsinaApi.DTOs
         public string Cpf { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(6, MinimumLength = 6, ErrorMessage = "A matrícula deve ter exatamente 6 dígitos.")]
         public string Matricula { get; set; } = string.Empty;
     }
 }

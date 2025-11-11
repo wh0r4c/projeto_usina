@@ -26,11 +26,11 @@ if (builder.Environment.IsProduction())
 else
 {
     // Usa SQLite quando estiver no seu PC (dotnet run)
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+    //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     //builder.Services.AddDbContext<AppDbContext>(options =>
-        //options.UseNpgsql());
+    //options.UseSqlite(connectionString));
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql());
 }
 
 // Adiciona Autenticação JWT
@@ -71,7 +71,7 @@ builder.Services.AddCors(options =>
                 "http://localhost:5500",
                 "http://127.0.0.1:5500",
                 "https://projeto-usina.netlify.app",
-                "https://admin-projeto-usina.netlify.app/"
+                "https://admin-projeto-usina.netlify.app"
             )
                   .AllowAnyHeader()
                   .AllowAnyMethod()

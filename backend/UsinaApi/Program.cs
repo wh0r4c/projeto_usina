@@ -26,11 +26,11 @@ if (builder.Environment.IsProduction())
 else
 {
     // Usa SQLite quando estiver no seu PC (dotnet run)
-    //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    //builder.Services.AddDbContext<AppDbContext>(options =>
-    //options.UseSqlite(connectionString));
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql());
+    options.UseSqlite(connectionString));
+    //builder.Services.AddDbContext<AppDbContext>(options =>
+        //options.UseNpgsql());
 }
 
 // Adiciona Autenticação JWT

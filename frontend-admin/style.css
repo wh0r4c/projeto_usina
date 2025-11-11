@@ -1,0 +1,64 @@
+/* Importa a fonte */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* --- Nosso Tema Roxo --- */
+    --bs-primary: #4E004E; 
+    --bs-secondary: #7A297A;
+    --bs-primary-rgb: 78, 0, 78;
+    --bs-secondary-rgb: 122, 41, 122;
+}
+
+/* --- FUNDO ANIMADO --- */
+@keyframes moveGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(-45deg, #4E004E, #3b003b, #2a004f, #330066);
+    background-size: 400% 400%;
+    animation: moveGradient 15s ease infinite;
+    min-height: 100vh;
+    
+    /* Remove o align-items e justify-content para a dashboard */
+}
+
+/* --- Layouts das Telas --- */
+.login-container {
+    max-width: 450px;
+    margin-top: 5vh;
+}
+
+.main-container {
+    max-width: 1140px;
+    display: block;
+    margin-top: 2rem;
+}
+
+/* Corrige o body para o modo dashboard */
+body.dashboard-mode {
+    display: block;
+    align-items: normal;
+    justify-content: normal;
+}
+
+/* --- Estilos do Painel Admin --- */
+
+/* Faz com que a tabela não "estoure" em ecrãs pequenos */
+#lista-colaboradores-container {
+    overflow-x: auto;
+}
+
+/* Adiciona um "hover" suave nas linhas da tabela */
+.table-hover > tbody > tr:hover {
+    --bs-table-hover-bg: rgba(78, 0, 78, 0.07); /* Tom de roxo claro */
+}
+
+/* Faz os botões de ação serem pequenos */
+.btn-acao {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}

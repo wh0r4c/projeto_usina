@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Usina</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="d-flex align-items-center justify-content-center">
+
+    <main id="tela-login-admin" class="container login-container">
+        <div class="card p-4 shadow-sm">
+            <h1 class="h3 mb-4 text-center text-primary fw-bold">Painel de Gestão (RH)</h1>
+            <form id="login-form-admin">
+                <div class="mb-3">
+                    <label for="admin-email" class="form-label fw-medium">Email</label>
+                    <input type="email" class="form-control form-control-lg" id="admin-email" placeholder="rh@usina.com"
+                        required>
+                </div>
+                <div class="mb-3">
+                    <label for="admin-password" class="form-label fw-medium">Senha</label>
+                    <input type="password" class="form-control form-control-lg" id="admin-password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold">Entrar</button>
+                </div>
+                <p id="admin-login-error" class="text-danger text-center mt-3"></p>
+            </form>
+        </div>
+    </main>
+
+    <main id="tela-dashboard-admin" class="container main-container" style="display: none;">
+        <header class="d-flex justify-content-between align-items-center my-4 p-3 bg-white rounded shadow-sm">
+            <h2 id="admin-saudacao" class="h4 text-primary fw-bold mb-0">Olá, Admin!</h2>
+            <button id="btn-admin-sair" class="btn btn-outline-secondary btn-sm">Sair</button>
+        </header>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action active" id="nav-colaboradores">
+                        Colaboradores
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" id="nav-audios">
+                        Áudios Pendentes
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="card shadow-sm">
+                    <div class="card-body" id="painel-conteudo">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="card-title mb-0" id="painel-titulo">Gestão de Colaboradores</h3>
+                            <button class="btn btn-primary" id="btn-mostrar-form-colaborador">
+                                + Adicionar Colaborador
+                            </button>
+                        </div>
+
+                        <div id="lista-colaboradores-container">
+                        </div>
+
+                        <div id="form-colaborador-container" style="display: none;">
+                            <hr>
+                            <h4>Novo Colaborador</h4>
+                            <form id="form-novo-colaborador">
+                                <div class="mb-3">
+                                    <label for="novo-nome" class="form-label">Nome Completo</label>
+                                    <input type="text" class="form-control" id="novo-nome" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="novo-cpf" class="form-label">CPF (11 dígitos)</label>
+                                    <input type="text" class="form-control" id="novo-cpf" maxlength="11" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="novo-matricula" class="form-label">Matrícula</label>
+                                    <input type="text" class="form-control" id="novo-matricula" required>
+                                </div>
+                                <button type="submit" class="btn btn-success">Salvar Colaborador</button>
+                                <button type="button" class="btn btn-secondary"
+                                    id="btn-cancelar-form-colaborador">Cancelar</button>
+                                <p id="form-colaborador-status" class="text-danger mt-3"></p>
+                            </form>
+                        </div>
+
+                        <div id="lista-audios-container" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="modal-editar-colaborador" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary fw-bold" id="editar-modal-titulo">Editar Colaborador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="banco-horas-tab" data-bs-toggle="tab"
+                                data-bs-target="#banco-horas-pane" type="button">Banco de Horas</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="ferias-tab" data-bs-toggle="tab" data-bs-target="#ferias-pane"
+                                type="button">Férias</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="holerite-tab" data-bs-toggle="tab"
+                                data-bs-target="#holerite-pane" type="button">Enviar Holerite</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="myTabContent">
+
+                        <div class="tab-pane fade show active" id="banco-horas-pane" role="tabpanel">
+                            <form id="form-editar-banco-horas" class="p-3">
+                                <p>Insira o saldo total. Use `.` para decimais (ex: `10.5` para 10h 30min) ou `-5` para
+                                    5h negativas.</p>
+                                <div class="mb-3">
+                                    <label for="editar-horas" class="form-label">Horas Acumuladas</label>
+                                    <input type="number" step="0.5" class="form-control" id="editar-horas" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editar-horas-fala" class="form-label">Texto para Fala
+                                        (Obrigatório)</label>
+                                    <input type="text" class="form-control" id="editar-horas-fala"
+                                        placeholder="Ex: Seu saldo é de 10 horas e 30 minutos." required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar Banco de Horas</button>
+                                <p id="status-banco-horas" class="text-danger mt-2"></p>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="ferias-pane" role="tabpanel">
+                            <form id="form-editar-ferias" class="p-3">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="editar-ferias-inicio" class="form-label">Data de Início
+                                            (Opcional)</label>
+                                        <input type="date" class="form-control" id="editar-ferias-inicio">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="editar-ferias-fim" class="form-label">Data de Fim (Opcional)</label>
+                                        <input type="date" class="form-control" id="editar-ferias-fim">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editar-ferias-saldo" class="form-label">Dias de Saldo Pendente</label>
+                                    <input type="number" class="form-control" id="editar-ferias-saldo" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editar-ferias-fala" class="form-label">Texto para Fala
+                                        (Obrigatório)</label>
+                                    <input type="text" class="form-control" id="editar-ferias-fala"
+                                        placeholder="Ex: Suas férias estão marcadas para 15 de Janeiro." required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar Férias</button>
+                                <p id="status-ferias" class="text-danger mt-2"></p>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="holerite-pane" role="tabpanel">
+                            <form id="form-enviar-holerite" class="p-3">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="holerite-mes-ano" class="form-label">Mês/Ano (ex: 11-2025)</label>
+                                        <input type="text" class="form-control" id="holerite-mes-ano" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="holerite-valor" class="form-label">Valor Líquido (ex:
+                                            2500.50)</label>
+                                        <input type="number" step="0.01" class="form-control" id="holerite-valor"
+                                            required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="holerite-fala" class="form-label">Texto para Fala (Obrigatório)</label>
+                                    <input type="text" class="form-control" id="holerite-fala"
+                                        placeholder="Ex: Seu pagamento de Novembro foi..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="holerite-pdf" class="form-label">Ficheiro PDF do Holerite</label>
+                                    <input type="file" class="form-control" id="holerite-pdf" accept="application/pdf"
+                                        required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Enviar Holerite</button>
+                                <p id="status-holerite" class="text-danger mt-2"></p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

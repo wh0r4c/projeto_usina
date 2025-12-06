@@ -1,21 +1,19 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models; // Importante para o Swagger funcionar
 using System.Text;
 using UsinaApi.Data;
-using UsinaApi.Models; // Importe os models
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using UsinaApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Configurar Serviços ---
+
+// Configuração para evitar erro de timestamp no PostgreSQL
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// --- 1. Configurar Serviços ---
-
 // Configura o banco de dados de forma inteligente
-// (Usa SQLite localmente e PostgreSQL em Produção)
 if (builder.Environment.IsProduction())
 {
     // Usa Npgsql (PostgreSQL) quando estiver no Render
@@ -28,9 +26,7 @@ else
     // Usa SQLite quando estiver no seu PC (dotnet run)
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
-    //builder.Services.AddDbContext<AppDbContext>(options =>
-        //options.UseNpgsql());
+        options.UseSqlite(connectionString));
 }
 
 // Adiciona Autenticação JWT
@@ -45,8 +41,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false, // Em dev/testes, desativamos para facilitar
+            ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
@@ -69,16 +65,17 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins(
                 "http://localhost:5500",
+                "http://localhost:5501", // Porta alternativa do Live Server
                 "http://127.0.0.1:5500",
-                //"https://projeto-usina.netlify.app",
-                //"https://admin-projeto-usina.netlify.app"
-                "https://admin-projeto-usina.vercel.app",
-                "https://projeto-usina.vercel.app"
-
+                "http://127.0.0.1:5501",
+                "https://projeto-usina.netlify.app",
+                "https://admin-projeto-usina.netlify.app",
+                "https://projeto-usina.vercel.app",
+                "https://admin-projeto-usina.vercel.app"
             )
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         });
 });
 
@@ -86,14 +83,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    // 1. Define as configurações do seu projeto
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "UsinaApi",
-        Version = "v1"
-    });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "UsinaApi", Version = "v1" });
 
-    // 2. Define o "Cadeado" (Segurança de Token Bearer)
+    // Configura o botão "Authorize" (Cadeado)
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -101,10 +93,9 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Por favor, insira 'Bearer ' (com espaço) e depois o seu token JWT."
+        Description = "Insira o seu token JWT aqui."
     });
 
-    // 3. Diz ao Swagger para aplicar este "Cadeado" a todos os endpoints
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -126,13 +117,7 @@ var app = builder.Build();
 
 // --- 3. Configurar o Pipeline HTTP ---
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// Criar/Alimentar o banco de dados ao iniciar
+// Cria/Alimenta o banco de dados ao iniciar
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -145,15 +130,12 @@ using (var scope = app.Services.CreateScope())
     }
     else
     {
-        // Em desenvolvimento (local), apenas GARANTE que o 
-        // banco de dados (SQLite) seja criado.
-        context.Database.EnsureCreated(); // <-- ESTA É A CORREÇÃO MÁGICA
+        // Em desenvolvimento (local), apenas GARANTE que o banco (SQLite) existe
+        context.Database.EnsureCreated();
     }
 
     SeedDatabase(context); // Alimenta com dados de teste
 }
-
-// --- 3. Configurar o Pipeline HTTP ---
 
 if (app.Environment.IsDevelopment())
 {
@@ -161,184 +143,118 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// (O seu bloco using/SeedDatabase vem aqui...)
-using (var scope = app.Services.CreateScope())
-{
-    // ... (o seu código SeedDatabase) ...
-}
+// app.UseHttpsRedirection(); // Desativado para facilitar testes locais http
 
-// A CORREÇÃO DE ORDEM COMEÇA AQUI
-
-// app.UseHttpsRedirection(); // Mantenha comentado por agora
-
-// 1. Habilita o "roteamento" (para que ele saiba o que é um "controller")
 app.UseRouting();
 
-// 2. Habilita o CORS (agora ele pode adicionar cabeçalhos às rotas)
 app.UseCors("AllowFrontend");
 
-app.UseStaticFiles(); // (Este pode ficar aqui)
+app.UseStaticFiles();
 
-// 3. Habilita a Autenticação
 app.UseAuthentication();
-
-// 4. Habilita a Autorização
 app.UseAuthorization();
 
-// 5. Mapeia os controllers (agora eles exigem autorização e usam CORS)
 app.MapControllers();
 
 app.Run();
 
-// ... (A sua função SeedDatabase fica aqui no fim) ...
-
 
 // --- 4. Método para alimentar o banco (Seed) ---
-
 static void SeedDatabase(AppDbContext context)
 {
-    // Verifica se já existe um utilizador
-    if (!context.Usuarios.Any())
+    // Verifica se já existe um utilizador Colaborador
+    if (!context.Usuarios.Any(u => !u.IsAdmin))
     {
         var usuarioTeste = new Usuario
         {
             Cpf = "12345678900",
             Nome = "Leandro",
-            Matricula = "123456", // Esta é a "senha" temporária
-            PinHash = null, // Começa sem PIN
-            PinFoiDefinido = false // O "interruptor" está desligado
+            Matricula = "123456",
+            PinHash = null,
+            PinFoiDefinido = false,
+            Departamento = "Operação" // Adicionado e vírgula corrigida
         };
         context.Usuarios.Add(usuarioTeste);
-        context.SaveChanges(); // Salva para obter o ID
+        context.SaveChanges();
 
+        // Adiciona Holerite de Teste
         context.Holerites.Add(new Holerite
         {
             UsuarioId = usuarioTeste.Id,
             MesAno = "10-2025",
             ValorLiquido = 1500.75m,
+            SalarioBruto = 2000.00m,
+            Descontos = 499.25m,
             TextoParaFala = "O seu pagamento de Outubro foi de mil, quinhentos reais e setenta e cinco centavos.",
             CaminhoPdf = "pdfs/holerite_exemplo.pdf"
         });
-        context.SaveChanges();
-    }
 
-    // Verifica se já existe um aviso
-    if (!context.Avisos.Any())
-    {
-        context.Avisos.Add(new Aviso
-        {
-            Titulo = "Feriado Municipal - Dia 15",
-            Conteudo = "Atenção a todos os colaboradores. Na próxima sexta-feira, dia 15, não haverá expediente devido ao feriado municipal. As atividades retornam normalmente na segunda-feira.",
-            TextoParaFala = "Atenção a todos os colaboradores. Na próxima sexta-feira, dia 15, não haverá expediente devido ao feriado municipal. As atividades retornam normalmente na segunda-feira."
-        });
-
-        context.Avisos.Add(new Aviso
-        {
-            Titulo = "Pagamento do 13º Salário",
-            Conteudo = "Informamos que a primeira parcela do 13º salário será depositada no dia 20 deste mês.",
-            TextoParaFala = "Informamos que a primeira parcela do décimo terceiro salário será depositada no dia 20 deste mês."
-        });
-
-        context.SaveChanges();
-    }
-
-    // Verifica se já existem FAQs
-    if (!context.Faqs.Any())
-    {
-        context.Faqs.Add(new Faq
-        {
-            Pergunta = "Como peço férias?",
-            Resposta = "Para solicitar férias, deve aceder ao portal interno de RH ou contactar o seu supervisor direto com pelo menos 30 dias de antecedência.",
-            TextoParaFala = "Para solicitar férias, deve aceder ao portal interno de R. H. ou contactar o seu supervisor direto com pelo menos 30 dias de antecedência.",
-            Ordem = 1
-        });
-
-        context.Faqs.Add(new Faq
-        {
-            Pergunta = "Qual o telefone do sindicato?",
-            Resposta = "O número de telefone principal do sindicato é (19) 3456-7890. O horário de atendimento é de segunda a sexta, das 8h às 17h.",
-            TextoParaFala = "O número de telefone principal do sindicato é 19, 3456, 7890. O horário de atendimento é de segunda a sexta, das 8 às 17 horas.",
-            Ordem = 2
-        });
-
-        // --- NOVAS PERGUNTAS ADICIONADAS AQUI ---
-
-        context.Faqs.Add(new Faq
-        {
-            Pergunta = "Como justifico uma falta?",
-            Resposta = "Atestados médicos devem ser entregues ao RH em até 48 horas. Para outras ausências, contacte o seu supervisor imediato.",
-            TextoParaFala = "Atestados médicos devem ser entregues ao R. H. em até 48 horas. Para outras ausências, contacte o seu supervisor imediato.",
-            Ordem = 3
-        });
-
-        context.Faqs.Add(new Faq
-        {
-            Pergunta = "Onde vejo o meu espelho de ponto?",
-            Resposta = "O espelho de ponto está disponível no mesmo sistema onde consulta o seu holerite. Se tiver dúvidas, procure o RH.",
-            TextoParaFala = "O espelho de ponto está disponível no mesmo sistema onde consulta o seu holerite. Se tiver dúvidas, procure o R. H.",
-            Ordem = 4
-        });
-
-        context.Faqs.Add(new Faq
-        {
-            Pergunta = "Qual o protocolo para acidentes de trabalho?",
-            Resposta = "Em caso de acidente, procure atendimento médico imediatamente e comunique o seu supervisor ou o departamento de Segurança do Trabalho assim que possível.",
-            TextoParaFala = "Em caso de acidente, procure atendimento médico imediatamente e comunique o seu supervisor ou o departamento de Segurança do Trabalho assim que possível.",
-            Ordem = 5
-        });
-
-        context.SaveChanges();
-    }
-
-    if (context.Usuarios.Any() && !context.BancoHoras.Any())
-    {
-        var usuarioTeste = context.Usuarios.First(u => u.Cpf == "12345678900");
+        // Adiciona Banco de Horas
         context.BancoHoras.Add(new BancoHoras
         {
             UsuarioId = usuarioTeste.Id,
-            HorasAcumuladas = 12.5m, // 12 horas e meia
+            HorasAcumuladas = 12.5m,
             DataAtualizacao = DateTime.UtcNow,
             TextoParaFala = "Você possui um saldo positivo de 12 horas e 30 minutos."
         });
 
-        context.SaveChanges();
-    }
-
-    if (context.Usuarios.Any() && !context.Ferias.Any())
-    {
-        var usuarioTeste = context.Usuarios.First(u => u.Cpf == "12345678900");
+        // Adiciona Férias
         context.Ferias.Add(new Ferias
         {
             UsuarioId = usuarioTeste.Id,
-            DataInicio = new DateTime(2025, 12, 20),
-            DataFim = new DateTime(2026, 1, 5),
-            DiasDeSaldo = 10, // Ainda tem 10 dias de saldo
+            DataInicio = new DateTime(2025, 12, 20).ToUniversalTime(), // UTC para evitar erro de PostgreSQL
+            DataFim = new DateTime(2026, 1, 5).ToUniversalTime(),
+            DiasDeSaldo = 10,
             TextoParaFala = "As suas próximas férias estão programadas para começar no dia 20 de Dezembro de 2025."
         });
 
         context.SaveChanges();
     }
 
-    // ... (depois do "if" das Ferias) ...
+    // Verifica e adiciona Avisos
+    if (!context.Avisos.Any())
+    {
+        context.Avisos.AddRange(
+            new Aviso
+            {
+                Titulo = "Feriado Municipal - Dia 15",
+                Conteudo = "Não haverá expediente devido ao feriado.",
+                TextoParaFala = "Atenção: Não haverá expediente dia 15 devido ao feriado."
+            },
+            new Aviso
+            {
+                Titulo = "Pagamento do 13º Salário",
+                Conteudo = "A primeira parcela será depositada no dia 20.",
+                TextoParaFala = "A primeira parcela do décimo terceiro será depositada dia 20."
+            }
+        );
+        context.SaveChanges();
+    }
+
+    // Verifica e adiciona FAQs
+    if (!context.Faqs.Any())
+    {
+        context.Faqs.AddRange(
+            new Faq { Pergunta = "Como peço férias?", Resposta = "Fale com seu supervisor.", TextoParaFala = "Fale com seu supervisor.", Ordem = 1 },
+            new Faq { Pergunta = "Qual o telefone do sindicato?", Resposta = "(19) 3456-7890", TextoParaFala = "O telefone é 19, 3456, 7890", Ordem = 2 }
+        );
+        context.SaveChanges();
+    }
 
     // VERIFICA SE JÁ EXISTE UM ADMIN
     if (!context.Usuarios.Any(u => u.IsAdmin))
     {
-        // Cria um utilizador Admin (RH)
         context.Usuarios.Add(new Usuario
         {
             Nome = "Admin RH",
-            Email = "rh@usina.com", // O login dele
-            // Senha complexa "Admin@123" (já com hash)
+            Email = "rh@usina.com",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
             IsAdmin = true,
-
-            // Campos de colaborador (não necessários para o admin)
             Cpf = "00000000000",
             Matricula = "000001",
-            PinFoiDefinido = true // Já está definido
+            PinFoiDefinido = true,
+            Departamento = "RH"
         });
-
         context.SaveChanges();
     }
 }

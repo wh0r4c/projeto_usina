@@ -14,5 +14,8 @@ namespace UsinaApi.DTOs
         [Required]
         [StringLength(6, MinimumLength = 6, ErrorMessage = "A matrícula deve ter exatamente 6 dígitos.")]
         public string Matricula { get; set; } = string.Empty;
+
+        [Required]
+        public string Departamento { get; set; } = "Geral";
     }
 }

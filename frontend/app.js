@@ -202,41 +202,107 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MÓDULO HOLERITE ---
     async function carregarHolerite(e) {
-        e.preventDefault(); // Previne o link de navegar
+        if (e) e.preventDefault();
+        
         holeriteError.textContent = '';
-        btnBaixarPdf.style.display = 'none';
-
+        btnBaixarPdf.style.display = 'none'; // Esconde botão PDF por padrão
+        
         if (!currentToken) {
             holeriteError.textContent = 'Erro de autenticação.';
             return;
         }
-
-        bsModalHolerite.show(); // Mostra o modal Bootstrap
+        
+        bsModalHolerite.show(); // Abre o modal vazio primeiro
 
         try {
-            const resposta = await fetch(`${API_BASE_URL}/api/holerite`, {
+            // Passo A: Buscar quais meses existem no banco
+            const respostaLista = await fetch(`${API_BASE_URL}/api/holerite/meses`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${currentToken}` }
             });
-            if (!resposta.ok) throw new Error('Não foi possível carregar.');
 
-            const dados = await resposta.json();
-            const valorFormatado = dados.valor_liquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            if (!respostaLista.ok) throw new Error('Erro ao buscar lista de meses.');
 
-            valorHolerite.textContent = valorFormatado;
-            textoParaFalar = dados.texto_para_fala;
-            if (dados.tem_pdf) {
-                btnBaixarPdf.style.display = 'block';
+            const listaMeses = await respostaLista.json();
+            const selectMes = document.getElementById('select-mes-holerite');
+
+            // Passo B: Limpar e Preencher o Dropdown (Select)
+            selectMes.innerHTML = ''; // Limpa opções antigas
+            
+            if (listaMeses.length === 0) {
+                holeriteError.textContent = "Nenhum holerite disponível.";
+                return;
             }
+
+            listaMeses.forEach(mes => {
+                const option = document.createElement('option');
+                option.value = mes; // ex: "11-2025"
+                option.textContent = mes;
+                selectMes.appendChild(option);
+            });
+
+            // Passo C: Configurar o que acontece quando muda o mês
+            selectMes.onchange = () => {
+                const mesSelecionado = selectMes.value;
+                buscarDetalhesHolerite(mesSelecionado);
+            };
+
+            // Passo D: Carregar automaticamente o primeiro mês da lista (o mais recente)
+            selectMes.value = listaMeses[0];
+            buscarDetalhesHolerite(listaMeses[0]);
+
         } catch (err) {
-            holeriteError.textContent = err.message;
+            holeriteError.textContent = "Não foi possível carregar o histórico.";
+            console.error(err);
+        }
+    }
+
+    async function buscarDetalhesHolerite(mesParaBuscar) {
+        // Limpa os valores visuais enquanto carrega
+        document.getElementById('holerite-bruto').textContent = '...';
+        document.getElementById('holerite-liquido').textContent = '...';
+        document.getElementById('holerite-error').textContent = '';
+
+        try {
+            // Chama a API passando o mês na URL (?mes=11-2025)
+            const resposta = await fetch(`${API_BASE_URL}/api/holerite?mes=${mesParaBuscar}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+
+            if (!resposta.ok) throw new Error('Erro ao carregar detalhes.');
+            
+            const dados = await resposta.json();
+            
+            // Preenche os dados na tela (O "Papel")
+            document.getElementById('holerite-mes').textContent = dados.mesAno;
+            document.getElementById('holerite-data-hoje').textContent = new Date().toLocaleDateString('pt-BR');
+            
+            document.getElementById('holerite-bruto').textContent = dados.salarioBruto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('holerite-descontos').textContent = dados.descontos.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('holerite-liquido').textContent = dados.valorLiquido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            // Atualiza o texto para o robô falar
+            textoParaFala = dados.textoParaFala;
+
+            // Se tiver PDF antigo, mostra o botão (opcional)
+            if (dados.temPdf) {
+                btnBaixarPdf.style.display = 'block';
+            } else {
+                btnBaixarPdf.style.display = 'none';
+            }
+
+        } catch (err) {
+            document.getElementById('holerite-error').textContent = "Erro ao carregar dados deste mês.";
         }
     }
 
     async function baixarPdf() {
+
+        const mesAtual = document.getElementsById('holerite-mes').textContent;
         // ... (código do baixarPdf não muda)
         try {
-            const resposta = await fetch(`${API_BASE_URL}/api/holerite/pdf`, {
+            const resposta = await fetch(`${API_BASE_URL}/api/holerite/pdf?mes=${mesAtual}`, {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${currentToken}` }
             });

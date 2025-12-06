@@ -1,133 +1,571 @@
-/* Importa uma fonte mais profissional */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-:root {
-    /* --- Nosso Tema Roxo --- */
-    /* Este é um roxo escuro, próximo ao da Raízen */
-    --bs-primary: #4E004E; 
-    /* Este é um roxo mais claro para hover/links */
-    --bs-secondary: #7A297A;
-    
-    /* Precisamos disso para o Bootstrap entender nossas cores */
-    --bs-primary-rgb: 78, 0, 78;
-    --bs-secondary-rgb: 122, 41, 122;
-}
+        :root {
+            --bs-primary: #4E004E;
+            --bs-secondary: #7A297A;
+            --bs-primary-rgb: 78, 0, 78;
+            --bs-secondary-rgb: 122, 41, 122;
+            --gradient-1: #4E004E;
+            --gradient-2: #3b003b;
+            --gradient-3: #2a004f;
+            --gradient-4: #330066;
+        }
 
-/* --- Login e Layout --- */
-.login-container {
-    max-width: 400px;
-    margin-top: 5vh;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.main-container {
-    max-width: 500px;
-}
+        @keyframes moveGradient {
+            0% {
+                background-position: 0% 50%;
+            }
 
-/* --- Nossos Botões de Menu Customizados --- */
-/* Transformamos os botões em "cards" clicáveis */
-.btn-icone-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    height: 130px;
-    
-    /* Configura o botão para usar nossas cores */
-    color: var(--bs-primary);
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    
-    font-size: 1rem;
-    font-weight: 600;
-    text-decoration: none; /* Remove sublinhado de link */
-    
-    transition: all 0.2s ease-in-out;
-}
+            50% {
+                background-position: 100% 50%;
+            }
 
-.btn-icone-card:hover {
-    color: #fff;
-    background-color: var(--bs-secondary);
-    border-color: var(--bs-secondary);
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+            100% {
+                background-position: 0% 50%;
+            }
+        }
 
-.btn-icone-card .icone {
-    font-size: 2.5rem;
-    margin-bottom: 8px;
-}
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
 
-/* --- Ajustes nos Modais --- */
-/* Deixa os displays de valor (Holerite, Férias) mais destacados */
-.display-valor-container {
-    text-align: center;
-    margin: 1.5rem 0;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.display-valor-container .valor-principal {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--bs-primary);
-    display: block;
-}
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
 
-.display-valor-container .valor-subtitulo {
-    font-size: 1rem;
-    color: #555;
-    font-weight: 500;
-}
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-.data-atualizacao {
-    font-size: 0.9rem;
-    color: #6c757d;
-    display: block;
-    text-align: center;
-    margin-top: -10px;
-    margin-bottom: 15px;
-}
+        @keyframes pulse {
 
-/* Botões do gravador */
-.btn-gravar {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-.btn-parar {
-    background-color: #343a40;
-    border-color: #343a40;
-}
+            0%,
+            100% {
+                transform: scale(1);
+            }
 
-/* --- FUNDO ANIMADO (v-nova) --- */
+            50% {
+                transform: scale(1.05);
+            }
+        }
 
-/* 1. Define a animação */
-@keyframes moveGradient {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
 
-/* 2. Aplica ao corpo da página */
-body {
-    /* Pega a fonte que já estávamos usando */
-    font-family: 'Inter', sans-serif;
-    
-    /* Pega as cores (tons de roxo, azul escuro, magenta) */
-    background: linear-gradient(-45deg, #4E004E, #3b003b, #2a004f, #330066);
-    
-    /* Define o tamanho do fundo (maior que a tela para o movimento) */
-    background-size: 400% 400%;
-    
-    /* Aplica a animação que definimos */
-    animation: moveGradient 15s ease infinite;
-    
-    /* Mantém o flexbox que já tínhamos */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    /* Garante que o fundo cubra a tela inteira */
-    min-height: 100vh;
-}
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(-45deg, var(--gradient-1), var(--gradient-2), var(--gradient-3), var(--gradient-4));
+            background-size: 400% 400%;
+            animation: moveGradient 15s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* === TELA DE LOGIN === */
+        .login-container {
+            max-width: 440px;
+            width: 100%;
+            padding: 0 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .login-container .card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .login-container .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--bs-primary), var(--bs-secondary), #a855f7);
+        }
+
+        .login-container h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+
+        .login-container .form-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-container .form-control {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .login-container .form-control:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 4px rgba(78, 0, 78, 0.1);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .login-container .btn-primary {
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(78, 0, 78, 0.3);
+        }
+
+        .login-container .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 0, 78, 0.4);
+        }
+
+        .login-container .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .login-container a {
+            color: var(--bs-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-container a:hover {
+            color: var(--bs-secondary);
+            text-decoration: underline;
+        }
+
+        /* === TELA PRINCIPAL === */
+        .main-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 0 20px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .main-container header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        .main-container header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-container .btn-outline-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .main-container .btn-outline-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* === CARDS DO MENU === */
+        .menu-icones {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .btn-icone-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            color: var(--bs-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-icone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-icone-card:hover::before {
+            left: 100%;
+        }
+
+        .btn-icone-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(78, 0, 78, 0.25);
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+            color: white;
+            border-color: var(--bs-secondary);
+        }
+
+        .btn-icone-card:active {
+            transform: translateY(-4px) scale(0.98);
+        }
+
+        .btn-icone-card .icone {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            transition: all 0.3s ease;
+        }
+
+        .btn-icone-card:hover .icone {
+            transform: scale(1.1) rotateZ(5deg);
+            filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.3));
+        }
+
+        .btn-icone-card span:last-child {
+            letter-spacing: 0.5px;
+        }
+
+        /* === MODAIS === */
+        .modal-content {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            background: white;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+            color: white !important;
+            padding: 24px 28px;
+            border-bottom: none;
+        }
+
+        .modal-header .modal-title {
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: white !important;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        /* === DISPLAY DE VALORES === */
+        .display-valor-container {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 3px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display-valor-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(78, 0, 78, 0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .display-valor-container .valor-principal {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            position: relative;
+        }
+
+        .display-valor-container .valor-subtitulo {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* === HOLERITE === */
+        #area-impressao-holerite {
+            border-left: 6px solid var(--bs-primary) !important;
+            border-radius: 16px;
+            background: linear-gradient(to bottom, #ffffff, #fafafa);
+            transition: all 0.3s ease;
+        }
+
+        #area-impressao-holerite:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table td {
+            padding: 12px 8px;
+            font-size: 0.95rem;
+        }
+
+        /* === BOTÕES === */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--bs-primary), var(--bs-secondary));
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(78, 0, 78, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 0, 78, 0.35);
+        }
+
+        .btn-outline-secondary,
+        .btn-outline-info {
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover,
+        .btn-outline-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-gravar {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-gravar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-parar {
+            background: linear-gradient(135deg, #343a40, #23272b);
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(52, 58, 64, 0.3);
+        }
+
+        .btn-parar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 58, 64, 0.4);
+        }
+
+        /* === SELECT === */
+        .form-select {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 4px rgba(78, 0, 78, 0.1);
+        }
+
+        /* === CARDS DE AVISOS/FAQ === */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-weight: 700;
+        }
+
+        /* === FAQ ACCORDION === */
+        .faq-card {
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .faq-card:hover {
+            border-color: var(--bs-primary);
+        }
+
+        .faq-pergunta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(to right, #f8f9fa, white);
+        }
+
+        .faq-pergunta h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--bs-primary);
+        }
+
+        .faq-resposta {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            background: white;
+        }
+
+        .faq-card.active .faq-resposta {
+            padding: 20px;
+            max-height: 500px;
+        }
+
+        /* === ANIMAÇÕES DE ENTRADA === */
+        .menu-icones .col-6:nth-child(1) .btn-icone-card {
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+        }
+
+        .menu-icones .col-6:nth-child(2) .btn-icone-card {
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .menu-icones .col-6:nth-child(3) .btn-icone-card {
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        .menu-icones .col-6:nth-child(4) .btn-icone-card {
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .menu-icones .col-6:nth-child(5) .btn-icone-card {
+            animation: fadeInUp 0.6s ease-out 0.5s both;
+        }
+
+        .menu-icones .col-6:nth-child(6) .btn-icone-card {
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
+        /* === RESPONSIVIDADE === */
+        @media (max-width: 576px) {
+            .btn-icone-card {
+                height: 130px;
+            }
+
+            .btn-icone-card .icone {
+                font-size: 2.5rem;
+            }
+
+            .display-valor-container .valor-principal {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* === IMPRESSÃO === */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .modal-header,
+            .modal-footer,
+            .btn {
+                display: none !important;
+            }
+        }

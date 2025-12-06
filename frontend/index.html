@@ -23,14 +23,13 @@
             <form id="login-form">
                 <div class="mb-3">
                     <label for="cpf" class="form-label fw-medium">CPF</label>
-                    <input type="tel" class="form-control form-control-lg" id="cpf" placeholder="Apenas números" required maxlength="14"
-                        required>
+                    <input type="tel" class="form-control form-control-lg" id="cpf" placeholder="Apenas números"
+                        required maxlength="14" required>
                 </div>
                 <div class="mb-3">
                     <label for="pin" class="form-label fw-medium">PIN</label>
                     <input type="password" class="form-control form-control-lg" id="pin" inputmode="numeric" required
-                        style="text-transform: uppercase;"
-                        maxlength="6">
+                        style="text-transform: uppercase;" maxlength="6">
                 </div>
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg fw-bold">Entrar</button>
@@ -102,15 +101,62 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-fechar-holerite"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="display-valor-container">
-                        <span id="holerite-valor-liquido" class="valor-principal">R$ 0,00</span>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <select id="select-mes-holerite"
+                            class="form-select form-select-sm w-auto shadow-sm border-primary">
+                        </select>
+                        <span class="small text-muted">Hoje: <span id="holerite-data-hoje">--/--/----</span></span>
                     </div>
+
+                    <div class="border p-3 mb-4 shadow-sm bg-white rounded" id="area-impressao-holerite"
+                        style="border-left: 5px solid #4E004E !important;">
+                        <div class="text-center border-bottom pb-2 mb-2">
+                            <h5 class="fw-bold text-dark mb-0">RECIBO DE PAGAMENTO</h5>
+                            <small class="text-muted">Raízen Energia S.A.</small>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Referência</small>
+                                <strong id="holerite-mes" class="text-dark">--</strong>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <td>Salário Bruto</td>
+                                    <td class="text-end text-success fw-bold" id="holerite-bruto">R$ 0,00</td>
+                                </tr>
+                                <tr>
+                                    <td>Descontos (INSS/IR)</td>
+                                    <td class="text-end text-danger" id="holerite-descontos">- R$ 0,00</td>
+                                </tr>
+                                <tr class="border-top mt-2">
+                                    <td class="pt-2"><strong>LÍQUIDO A RECEBER</strong></td>
+                                    <td class="text-end fw-bold fs-4 text-primary pt-2" id="holerite-liquido">R$ 0,00
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                     <div class="d-grid gap-2">
-                        <button id="btn-ouvir-holerite" class="btn btn-primary">▶️ Ouvir Valor</button>
-                        <button id="btn-baixar-pdf" class="btn btn-outline-primary" style="display: none;">Baixar PDF
-                            Completo</button>
+                        <button id="btn-ouvir-holerite" class="btn btn-primary">
+                            🔊 Ouvir Valores
+                        </button>
+
+                        <button onclick="window.print()" class="btn btn-outline-secondary">
+                            🖨️ Imprimir Comprovante
+                        </button>
+
+                        <button id="btn-baixar-pdf" class="btn btn-sm btn-outline-info" style="display: none;">
+                            📄 Baixar PDF Original
+                        </button>
                     </div>
-                    <p id="holerite-error" class="text-danger text-center mt-3"></p>
+
+                    <p id="holerite-error" class="text-danger text-center mt-3 small"></p>
                 </div>
             </div>
         </div>

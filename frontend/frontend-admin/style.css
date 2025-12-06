@@ -1,0 +1,216 @@
+/* Importa a fonte Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Cores da Identidade Visual */
+    --primary-color: #4E004E;
+    --primary-light: #6a0f6a;
+    --secondary-color: #7A297A;
+    --accent-color: #9d389d;
+    --bg-light: #f4f6f9;
+    --text-dark: #2c3e50;
+    --white: #ffffff;
+    
+    /* Sombras e Bordas */
+    --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-lg: 1rem;
+    --radius-md: 0.5rem;
+}
+
+/* --- ANIMAÇÃO DE FUNDO (Mantida e Suavizada) --- */
+@keyframes moveGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* --- TELA DE LOGIN (Glassmorphism) --- */
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(-45deg, #4E004E, #240024, #2a004f, #330066);
+    background-size: 400% 400%;
+    animation: moveGradient 15s ease infinite;
+    padding: 1rem;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.login-card .form-control {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: var(--radius-md);
+}
+
+.login-card .btn-primary {
+    background-color: var(--accent-color);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.login-card .btn-primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+/* --- LAYOUT DO DASHBOARD --- */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-light);
+}
+
+/* Sidebar Lateral */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.sidebar .nav-link {
+    color: rgba(255,255,255,0.75);
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    background: rgba(255,255,255,0.15);
+    color: var(--white);
+    font-weight: 500;
+}
+
+.brand-area {
+    padding: 0 0.5rem;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Área Principal */
+.main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 2rem;
+}
+
+/* --- ELEMENTOS DE UI --- */
+.card {
+    border: none;
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+}
+
+/* Tabelas Bonitas */
+.table-responsive {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table th {
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    color: #444;
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: rgba(78, 0, 78, 0.03);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+}
+
+/* Botões */
+.btn {
+    border-radius: var(--radius-md);
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+
+/* Estilos Específicos do Painel */
+#form-colaborador-container {
+    background-color: #fff;
+    border: 1px solid #eee;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .main-content {
+        padding: 0;
+    }
+}

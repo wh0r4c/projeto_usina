@@ -8,6 +8,8 @@ using UsinaApi.Data;
 using UsinaApi.DTOs;
 using UsinaApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using System.Globalization;
 
 [ApiController]
 [Route("api/[controller]")] // Rota será /api/admin
@@ -20,6 +22,148 @@ public class AdminController : ControllerBase
     {
         _context = context;
         _config = config;
+    }
+
+// --- IMPORTAÇÃO GERAL (CORRIGIDA) ---
+    [HttpPost("importar/geral")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ImportarGeral(IFormFile arquivo)
+    {
+        if (arquivo == null || arquivo.Length == 0)
+            return BadRequest(new { message = "Arquivo inválido." });
+
+        int usrsCount = 0; // Contador de novos usuários
+        int bhCount = 0;
+        int holCount = 0;
+        int ferCount = 0;
+        int erros = 0;
+
+        using (var reader = new StreamReader(arquivo.OpenReadStream()))
+        {
+            while (reader.Peek() >= 0)
+            {
+                var linha = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(linha)) continue;
+
+                var dados = linha.Split(';');
+                var tipoRegistro = dados[0].ToUpper().Trim();
+                
+                try 
+                {
+                    // ==================================================
+                    // 1. LÓGICA DE CRIAR USUÁRIO (USR)
+                    // ==================================================
+                    // Formato: USR;NOME;CPF;MATRICULA;DEPARTAMENTO
+                    if (tipoRegistro == "USR" && dados.Length >= 4)
+                    {
+                        var nome = dados[1].Trim();
+                        var cpf = dados[2].Trim();
+                        var novaMatricula = dados[3].Trim();
+                        var depto = dados.Length > 4 ? dados[4].Trim() : "Geral";
+
+                        // Verifica se já existe para não duplicar
+                        var existe = await _context.Usuarios.AnyAsync(u => u.Cpf == cpf || u.Matricula == novaMatricula);
+                        
+                        if (!existe)
+                        {
+                            var novoUser = new Usuario
+                            {
+                                Nome = nome,
+                                Cpf = cpf,
+                                Matricula = novaMatricula,
+                                Departamento = depto,
+                                PinHash = null,
+                                PinFoiDefinido = false,
+                                IsAdmin = false
+                            };
+                            _context.Usuarios.Add(novoUser);
+                            
+                            // IMPORTANTE: Salvar IMEDIATAMENTE para que as próximas linhas
+                            // (BH, HOL) consigam encontrar este usuário novo.
+                            await _context.SaveChangesAsync(); 
+                            usrsCount++;
+                        }
+                        continue; // Vai para a próxima linha
+                    }
+
+                    // ==================================================
+                    // PARA AS OUTRAS LÓGICAS, PRECISAMOS BUSCAR O USUÁRIO
+                    // ==================================================
+                    if (dados.Length < 2) continue;
+                    var matriculaBusca = dados[1].Trim();
+                    var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Matricula == matriculaBusca);
+
+                    if (usuario == null) {
+                        // Se não achou o usuário (e não era uma linha USR), é erro.
+                        Console.WriteLine($"[ERRO] Usuário não encontrado: {matriculaBusca}");
+                        erros++;
+                        continue;
+                    }
+
+                    // 2. LÓGICA DE BANCO DE HORAS (BH)
+                    if (tipoRegistro == "BH" && dados.Length >= 3)
+                    {
+                        decimal horas = ConverterParaDecimal(dados[2]);
+                        
+                        var banco = await _context.BancoHoras.FirstOrDefaultAsync(b => b.UsuarioId == usuario.Id);
+                        if (banco == null) { banco = new BancoHoras { UsuarioId = usuario.Id }; _context.BancoHoras.Add(banco); }
+                        
+                        banco.HorasAcumuladas = horas;
+                        banco.DataAtualizacao = DateTime.UtcNow;
+                        var sinal = horas >= 0 ? "positivo" : "negativo";
+                        banco.TextoParaFala = $"Olá {usuario.Nome}. Seu saldo atual é {sinal} de {Math.Abs(horas)} horas.";
+                        bhCount++;
+                    }
+                    
+                    // 3. LÓGICA DE HOLERITE (HOL)
+                    else if (tipoRegistro == "HOL" && dados.Length >= 5)
+                    {
+                        decimal bruto = ConverterParaDecimal(dados[2]);
+                        decimal desc = ConverterParaDecimal(dados[3]);
+                        var mes = dados[4].Trim();
+
+                        var hol = await _context.Holerites.FirstOrDefaultAsync(h => h.UsuarioId == usuario.Id && h.MesAno == mes);
+                        if (hol == null) { hol = new Holerite { UsuarioId = usuario.Id, MesAno = mes }; _context.Holerites.Add(hol); }
+
+                        hol.SalarioBruto = bruto;
+                        hol.Descontos = desc;
+                        hol.ValorLiquido = bruto - desc;
+                        
+                        var liqFormatado = hol.ValorLiquido.ToString("C", new CultureInfo("pt-BR"));
+                        hol.TextoParaFala = $"Olá {usuario.Nome}. Seu salário líquido de {mes} é de {liqFormatado}.";
+                        holCount++;
+                    }
+
+                    // 4. LÓGICA DE FÉRIAS (FER)
+                    else if (tipoRegistro == "FER" && dados.Length >= 5)
+                    {
+                        DateTime.TryParse(dados[2], out DateTime inicio);
+                        DateTime.TryParse(dados[3], out DateTime fim);
+                        int.TryParse(dados[4], out int saldo);
+
+                        var ferias = await _context.Ferias.FirstOrDefaultAsync(f => f.UsuarioId == usuario.Id);
+                        if (ferias == null) { ferias = new Ferias { UsuarioId = usuario.Id }; _context.Ferias.Add(ferias); }
+
+                        ferias.DataInicio = inicio;
+                        ferias.DataFim = fim;
+                        ferias.DiasDeSaldo = saldo;
+                        ferias.TextoParaFala = $"Olá {usuario.Nome}. Suas férias começam dia {inicio:dd/MM}.";
+                        ferCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERRO GRAVE] {ex.Message}");
+                    erros++;
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(new { 
+            message = "Processamento Geral Concluído!", 
+            detalhes = $"Novos Usuários: {usrsCount} | Banco Horas: {bhCount} | Holerites: {holCount} | Férias: {ferCount} | Erros: {erros}" 
+        });
     }
 
     [HttpPost("login")]
@@ -53,10 +197,47 @@ public class AdminController : ControllerBase
         });
     }
 
+    [HttpGet("colaboradores")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetColaboradores(string? termo, string? departamento)
+    {
+        // Começa a consulta (ainda não vai ao banco)
+        var query = _context.Usuarios.Where(u => !u.IsAdmin);
 
+        // Aplica filtro de Nome ou Matrícula ou CPF
+        if (!string.IsNullOrEmpty(termo))
+        {
+            termo = termo.ToLower();
+            query = query.Where(u =>
+                u.Nome.ToLower().Contains(termo) ||
+                u.Matricula.Contains(termo) ||
+                u.Cpf.Contains(termo));
+        }
 
+        // Aplica filtro de Departamento
+        if (!string.IsNullOrEmpty(departamento))
+        {
+            query = query.Where(u => u.Departamento == departamento);
+        }
+
+        var colaboradores = await query
+            .OrderBy(u => u.Nome)
+            .Select(u => new
+            {
+                u.Id,
+                u.Nome,
+                u.Cpf,
+                u.Matricula,
+                u.PinFoiDefinido,
+                u.Departamento // Adicionei Departamento aqui
+            })
+            .ToListAsync();
+
+        return Ok(colaboradores);
+    }
+    // --- CRIAR NOVO COLABORADOR (Manual) ---
     [HttpPost("colaboradores")]
-    [Authorize(Roles = "Admin")] // <-- SEGURANÇA! Só Admins podem fazer isto.
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CriarColaborador([FromBody] CriarColaboradorDto novoColaborador)
     {
         // 1. Verifica se o CPF já existe
@@ -66,18 +247,21 @@ public class AdminController : ControllerBase
             return BadRequest(new { message = "Este CPF já está cadastrado." });
         }
 
-        // 2. Cria o novo utilizador
+        // 2. Cria o objeto do utilizador
         var usuario = new Usuario
         {
             Nome = novoColaborador.Nome,
             Cpf = novoColaborador.Cpf,
             Matricula = novoColaborador.Matricula,
 
-            // Define os padrões para o primeiro login
+            // ATENÇÃO: Aqui está a linha que faz o filtro funcionar!
+            Departamento = novoColaborador.Departamento,
+
+            // Configurações padrão para o "Primeiro Acesso"
             PinHash = null,
             PinFoiDefinido = false,
 
-            // Define os padrões para "não-admin"
+            // Garante que não é admin
             IsAdmin = false,
             Email = null,
             PasswordHash = null
@@ -87,10 +271,9 @@ public class AdminController : ControllerBase
         _context.Usuarios.Add(usuario);
         await _context.SaveChangesAsync();
 
-        // 4. Retorna uma resposta de sucesso
-        return CreatedAtAction(nameof(CriarColaborador), new { id = usuario.Id }, usuario);
+        // 4. Retorna sucesso
+        return CreatedAtAction(nameof(GetColaboradores), new { id = usuario.Id }, usuario);
     }
-
 
     // ... (depois da função CriarColaborador) ...
 
@@ -127,26 +310,6 @@ public class AdminController : ControllerBase
 
 
     // ... (depois da função GetAudios) ...
-
-    [HttpGet("colaboradores")]
-    [Authorize(Roles = "Admin")] // <-- SEGURANÇA!
-    public async Task<IActionResult> GetColaboradores()
-    {
-        var colaboradores = await _context.Usuarios
-            .Where(u => !u.IsAdmin) // <-- Filtra APENAS colaboradores
-            .OrderBy(u => u.Nome)
-            .Select(u => new ColaboradorResumoDto
-            {
-                Id = u.Id,
-                Nome = u.Nome,
-                Cpf = u.Cpf,
-                Matricula = u.Matricula,
-                PinFoiDefinido = u.PinFoiDefinido
-            })
-            .ToListAsync();
-
-        return Ok(colaboradores);
-    }
 
     // ... (depois da função GetColaboradores) ...
 
@@ -283,6 +446,24 @@ public class AdminController : ControllerBase
 
         return Ok(holerite);
     }
+    [HttpGet("colaboradores/{id}/holerites")] // Define a URL
+    [Authorize(Roles = "Admin")] // Protege o acesso
+    public async Task<IActionResult> GetHistoricoHolerites(int id)
+    {
+        var holerites = await _context.Holerites
+            .Where(h => h.UsuarioId == id)
+            .OrderByDescending(h => h.Id) // Ou ordenar por data se possível
+            .Select(h => new
+            {
+                h.Id,
+                h.MesAno,
+                h.ValorLiquido,
+                h.TextoParaFala
+            })
+            .ToListAsync();
+
+        return Ok(holerites);
+    }
 
     // --- Gerador de Token ---
     // NOTA: No futuro, poderíamos mover esta função para uma classe "Serviço" 
@@ -312,5 +493,36 @@ public class AdminController : ControllerBase
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+
+    // Função auxiliar para converter qualquer texto de dinheiro em Decimal
+    private decimal ConverterParaDecimal(string valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor)) return 0;
+
+        try
+        {
+            // 1. Limpeza básica
+            var limpo = valor.Trim().Replace("R$", "").Replace(" ", "");
+
+            // 2. Lógica de Detecção: É Brasil (vírgula) ou EUA (ponto)?
+            if (limpo.Contains(","))
+            {
+                // Se tem vírgula, assumimos formato BR (ex: 3.500,50 ou 3500,50)
+                // Removemos os pontos de milhar (3.500 -> 3500)
+                limpo = limpo.Replace(".", "");
+                // Trocamos a vírgula decimal por ponto para o sistema entender (3500,50 -> 3500.50)
+                limpo = limpo.Replace(",", ".");
+            }
+
+            // 3. Converte usando a cultura Invariante (padrão de computador: ponto é decimal)
+            return decimal.Parse(limpo, CultureInfo.InvariantCulture);
+        }
+        catch
+        {
+            // Se falhar (ex: texto inválido), retorna 0
+            // DICA: Coloque um breakpoint aqui se quiser ver o erro acontecendo
+            return 0;
+        }
     }
 }

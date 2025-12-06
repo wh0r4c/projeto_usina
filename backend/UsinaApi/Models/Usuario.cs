@@ -13,6 +13,8 @@ namespace UsinaApi.Models
 
         public string Nome { get; set; } = string.Empty;
 
+        public string Departamento { get; set; } = "Geral"; // Valor padrão
+
         public ICollection<Holerite> Holerites { get; set; } = new List<Holerite>();
 
         [Required]

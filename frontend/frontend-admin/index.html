@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Usina</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main id="tela-login-admin" class="login-wrapper">
+        <div class="login-card glass-effect">
+            <div class="text-center mb-4">
+                <i class="bi bi-buildings-fill text-primary display-4"></i>
+                <h1 class="h3 mt-2 fw-bold text-white">Portal RH</h1>
+                <p class="text-white-50">Gestão Administrativa Usina</p>
+            </div>
+            
+            <form id="login-form-admin">
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="admin-email" placeholder="nome@exemplo.com" required>
+                    <label for="admin-email">Email Corporativo</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="password" class="form-control" id="admin-password" placeholder="Senha" required>
+                    <label for="admin-password">Senha</label>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                        ACESSAR SISTEMA <i class="bi bi-arrow-right-short"></i>
+                    </button>
+                </div>
+                <p id="admin-login-error" class="text-warning text-center mt-3 fw-bold small"></p>
+            </form>
+        </div>
+    </main>
+
+    <div id="tela-dashboard-admin" class="dashboard-wrapper" style="display: none;">
+        
+        <aside class="sidebar glass-sidebar d-flex flex-column flex-shrink-0 p-3 text-white">
+            <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white brand-area">
+                <i class="bi bi-buildings-fill fs-4 me-2"></i>
+                <span class="fs-5 fw-bold">Usina Admin</span>
+            </a>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active d-flex align-items-center gap-2" id="nav-colaboradores">
+                        <i class="bi bi-people-fill"></i> Colaboradores
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link text-white d-flex align-items-center gap-2" id="nav-audios">
+                        <i class="bi bi-mic-fill"></i> Áudios Pendentes
+                    </a>
+                </li>
+            </ul>
+            <hr>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                    <div class="avatar-circle me-2"><i class="bi bi-person-fill"></i></div>
+                    <strong id="admin-saudacao">Admin</strong>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                    <li><button class="dropdown-item" id="btn-admin-sair"><i class="bi bi-box-arrow-right"></i> Sair</button></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="container-fluid p-4">
+                
+                <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h2 class="h3 fw-bold text-dark mb-0" id="painel-titulo">Visão Geral</h2>
+                    <div class="badge bg-primary rounded-pill px-3 py-2">
+                        <i class="bi bi-clock-history"></i> Sistema Online
+                    </div>
+                </header>
+
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4" id="painel-conteudo">
+                        
+                        <div id="wrapper-colaboradores"> <div class="card mb-4 border-0 bg-light rounded-3 shadow-sm">
+                                <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-primary"><i class="bi bi-database-fill-gear"></i> Integração ERP (Arquivo Mestre)</h5>
+                                        <p class="text-muted small mb-0">
+                                            Importe <code>.txt</code> ou <code>.csv</code> para atualizar Colaboradores, Departamentos, BH, Holerites e Férias em lote.
+                                        </p>
+                                    </div>
+                                    <form id="form-importacao-geral" class="d-flex gap-2 align-items-center">
+                                        <input class="form-control form-control-sm" type="file" id="arquivo-geral" accept=".txt,.csv" required>
+                                        <button type="submit" class="btn btn-dark btn-sm fw-medium text-nowrap">
+                                            <i class="bi bi-cloud-upload-fill"></i> Processar
+                                        </button>
+                                    </form>
+                                </div>
+                                <div id="status-importacao-geral" class="px-3 pb-2 fw-bold small"></div>
+                            </div>
+
+                            <div class="row g-2 mb-4 align-items-center">
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="filtro-termo" class="form-control border-start-0 ps-0" placeholder="Buscar por Nome, CPF ou Matrícula...">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="filtro-departamento" class="form-select">
+                                        <option value="">Todos os Departamentos</option>
+                                        <option value="Operação">Operação</option>
+                                        <option value="Administrativo">Administrativo</option>
+                                        <option value="TI">TI</option>
+                                        <option value="Manutenção">Manutenção</option>
+                                        <option value="Manutenção">Logística</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button id="btn-filtrar" class="btn btn-secondary w-100"><i class="bi bi-funnel"></i> Filtrar</button>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-primary w-100" id="btn-mostrar-form-colaborador">
+                                        <i class="bi bi-person-plus-fill"></i> Novo
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="lista-colaboradores-container" class="table-responsive bg-white rounded-3">
+                                </div>
+
+                            <div id="form-colaborador-container" class="card bg-light border-0 p-4 mt-3" style="display: none;">
+                                <h4 class="mb-3 text-primary border-bottom pb-2">Cadastrar Novo Colaborador</h4>
+                                <form id="form-novo-colaborador">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="novo-nome" class="form-label fw-bold">Nome Completo</label>
+                                            <input type="text" class="form-control" id="novo-nome" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="novo-departamento" class="form-label fw-bold">Departamento</label>
+                                            <select class="form-select" id="novo-departamento">
+                                                <option value="Operação">Operação</option>
+                                                <option value="Administrativo">Administrativo</option>
+                                                <option value="TI">TI</option>
+                                                <option value="Manutenção">Manutenção</option>
+                                                <option value="RH">RH</option>
+                                                <option value="Logística">Logística</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="novo-cpf" class="form-label fw-bold">CPF (11 dígitos)</label>
+                                            <input type="text" class="form-control" id="novo-cpf" maxlength="11" placeholder="Somente números" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="novo-matricula" class="form-label fw-bold">Matrícula</label>
+                                            <input type="text" class="form-control" id="novo-matricula" required>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 d-flex gap-2 justify-content-end">
+                                        <button type="button" class="btn btn-outline-secondary" id="btn-cancelar-form-colaborador">Cancelar</button>
+                                        <button type="submit" class="btn btn-success px-4">Salvar Cadastro</button>
+                                    </div>
+                                    <p id="form-colaborador-status" class="text-danger mt-3 fw-bold text-center"></p>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="lista-audios-container" class="table-responsive" style="display: none;">
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="modal-editar-colaborador" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="editar-modal-titulo"><i class="bi bi-pencil-square"></i> Editar Colaborador</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="d-flex">
+                        <div class="nav flex-column nav-pills p-3 bg-light border-end" id="v-pills-tab" role="tablist" aria-orientation="vertical" style="min-width: 200px;">
+                            <button class="nav-link active text-start" id="banco-horas-tab" data-bs-toggle="pill" data-bs-target="#banco-horas-pane" type="button"><i class="bi bi-clock"></i> Banco de Horas</button>
+                            <button class="nav-link text-start" id="ferias-tab" data-bs-toggle="pill" data-bs-target="#ferias-pane" type="button"><i class="bi bi-sun"></i> Férias</button>
+                            <button class="nav-link text-start" id="holerite-tab" data-bs-toggle="pill" data-bs-target="#holerite-pane" type="button"><i class="bi bi-file-earmark-pdf"></i> Holerite</button>
+                        </div>
+                        
+                        <div class="tab-content flex-grow-1 p-4" id="v-pills-tabContent">
+                            
+                            <div class="tab-pane fade show active" id="banco-horas-pane" role="tabpanel">
+                                <h6 class="fw-bold text-secondary mb-3">Gerenciar Banco de Horas</h6>
+                                <form id="form-editar-banco-horas">
+                                    <div class="alert alert-info py-2 small"><i class="bi bi-info-circle"></i> Use ponto para decimais (ex: 10.5) e sinal negativo para débito.</div>
+                                    <div class="mb-3">
+                                        <label for="editar-horas" class="form-label">Horas Acumuladas</label>
+                                        <input type="number" step="0.5" class="form-control" id="editar-horas" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editar-horas-fala" class="form-label">Mensagem de Voz (TTS)</label>
+                                        <textarea class="form-control" id="editar-horas-fala" rows="2" placeholder="Ex: Seu saldo é de 10 horas e 30 minutos." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Atualizar Saldo</button>
+                                    <p id="status-banco-horas" class="mt-2 fw-bold small"></p>
+                                </form>
+                            </div>
+
+                            <div class="tab-pane fade" id="ferias-pane" role="tabpanel">
+                                <h6 class="fw-bold text-secondary mb-3">Programação de Férias</h6>
+                                <form id="form-editar-ferias">
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label small">Início</label>
+                                            <input type="date" class="form-control" id="editar-ferias-inicio">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small">Fim</label>
+                                            <input type="date" class="form-control" id="editar-ferias-fim">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editar-ferias-saldo" class="form-label">Dias Pendentes</label>
+                                        <input type="number" class="form-control" id="editar-ferias-saldo" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editar-ferias-fala" class="form-label">Mensagem de Voz (TTS)</label>
+                                        <textarea class="form-control" id="editar-ferias-fala" rows="2" placeholder="Ex: Suas férias estão marcadas..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Salvar Dados</button>
+                                    <p id="status-ferias" class="mt-2 fw-bold small"></p>
+                                </form>
+                            </div>
+
+                            <div class="tab-pane fade" id="holerite-pane" role="tabpanel">
+                                <h6 class="fw-bold text-secondary mb-3">Envio de Holerite</h6>
+                                <form id="form-enviar-holerite" class="mb-4">
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label small">Mês/Ano</label>
+                                            <input type="text" class="form-control" id="holerite-mes-ano" placeholder="11-2025" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label small">Valor Líquido</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">R$</span>
+                                                <input type="number" step="0.01" class="form-control" id="holerite-valor" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small">PDF do Holerite</label>
+                                        <input type="file" class="form-control" id="holerite-pdf" accept="application/pdf" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small">Mensagem de Voz</label>
+                                        <input type="text" class="form-control" id="holerite-fala" placeholder="Ex: Pagamento disponível..." required>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100"><i class="bi bi-send"></i> Enviar Holerite</button>
+                                    <p id="status-holerite" class="mt-2 fw-bold small"></p>
+                                </form>
+
+                                <hr>
+                                <h6 class="text-muted small fw-bold mb-2">HISTÓRICO RECENTE</h6>
+                                <div class="table-responsive border rounded bg-white" style="max-height: 150px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped mb-0 small">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th>Ref</th>
+                                                <th>Valor</th>
+                                                <th>Msg</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="lista-historico-holerites">
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

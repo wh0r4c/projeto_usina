@@ -574,17 +574,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- FUNÇÃO DE FALA (Genérica) ---
-    function falarTexto(texto) {
-        window.speechSynthesis.cancel();
-        if ('speechSynthesis' in window && texto) {
-            const synth = window.speechSynthesis;
-            const utterance = new SpeechSynthesisUtterance(texto);
-            utterance.lang = 'pt-BR';
-            synth.speak(utterance);
+function falarTexto(texto) {
+    // Para qualquer fala anterior
+    window.speechSynthesis.cancel(); 
+
+    if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        
+        // Cria a "fala"
+        const utterance = new SpeechSynthesisUtterance(texto);
+        
+        // --- AQUI ESTÁ O TRUQUE PARA O FIREFOX/CHROME ---
+        // As vozes carregam de forma assíncrona. Precisamos pegá-las.
+        let voices = synth.getVoices();
+        
+        // Tenta encontrar uma voz em Português
+        // Prioriza "Google Português", depois qualquer "pt-BR", depois qualquer "pt"
+        const vozPt = voices.find(v => v.name.includes('Google Português')) || 
+                      voices.find(v => v.lang === 'pt-BR') || 
+                      voices.find(v => v.lang.includes('pt'));
+
+        if (vozPt) {
+            utterance.voice = vozPt; // Força o uso dessa voz
+            utterance.lang = vozPt.lang;
         } else {
-            alert('Seu navegador não suporta a função de voz.');
+            // Fallback se não achar voz específica
+            utterance.lang = 'pt-BR'; 
         }
+
+        // Ajustes de velocidade e tom (opcional)
+        utterance.rate = 1.0; // Velocidade normal
+        utterance.pitch = 1.0; // Tom normal
+
+        synth.speak(utterance);
+    } else {
+        alert('Seu navegador não suporta a função de voz.');
     }
+}
+
+// Pequeno hack para carregar as vozes no Chrome/Firefox assim que abrir
+window.speechSynthesis.getVoices();
 
 
     // --- REGISTRO DE EVENTOS (Listeners) ---
